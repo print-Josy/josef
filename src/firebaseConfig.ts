@@ -1,7 +1,7 @@
 // src/firebaseConfig.ts
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
-import { getFirestore } from 'firebase/firestore';  // If you plan to use Firestore
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,9 +15,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);  // Analytics can be optional
-
-// If you're using Firestore:
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-export { db, analytics };
+export { db, auth };

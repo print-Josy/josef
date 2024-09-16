@@ -32,15 +32,15 @@ body {
 
 /* index.css */
 
+/* index.css */
+
 body, html {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f0f0;
+    background-color: #f0f0f0; /* This background will be overridden on specific pages */
+    display: block; /* Change from flex to block so background isn't constrained */
 }
 
 
