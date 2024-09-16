@@ -16,10 +16,8 @@ const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts }) => {
   const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10, 30];  // Define ECTS options here
 
   // Use your useCourses hook
-  const { courses, handleCourseChange, handleEctsChange } = useCourses(
-      selectedFields,
-      setSelectedFields
-  );
+  const { courses, handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts);
+
 
   return (
       <Grid container spacing={2}>

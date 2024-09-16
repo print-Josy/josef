@@ -1,15 +1,15 @@
 // src/pages/Master.tsx
 import { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Box, IconButton, Button } from '@mui/material';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';  // Import proper User type
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseGrid from '../components/CourseGrid';
 import CourseDialog from '../components/CourseDialog';
 import ProgressBar from '../components/ProgressBar';
-import ScrollableContainer from '../components/ScrollableContainer';  // Import the scrollable container
+import ScrollableContainer from '../components/ScrollableContainer';
 
 function Master() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);  // Replace 'any' with Firebase User or null
   const [totalEcts, setTotalEcts] = useState(0);  // State to track total ECTS
   const [open, setOpen] = useState(false);  // State to manage CourseDialog visibility
   const auth = getAuth();
@@ -69,7 +69,7 @@ function Master() {
 
         {/* Scrollable Course Grid */}
         <ScrollableContainer maxHeight="50vh">  {/* Apply scroll to course grid */}
-          <CourseGrid updateEcts={updateEcts} />
+          <CourseGrid updateEcts={updateEcts} />  {/* Ensure CourseGrid receives updateEcts */}
         </ScrollableContainer>
 
         <Typography variant="h6" mt={2}>Total ECTS: {totalEcts}</Typography>
