@@ -1,4 +1,3 @@
-// src/hooks/useCourses.ts
 import { useState, useEffect } from 'react';
 import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
@@ -12,8 +11,9 @@ interface SelectedField {
 
 // Define the Course interface that represents a course document
 interface Course {
-  selectedCourse: string;
-  selectedEcts: number;
+  id: string;  // Add the id to match Firestore document IDs
+  name: string;  // Course name
+  ects: number;  // Course ECTS points
 }
 
 export const useCourses = (
@@ -22,7 +22,7 @@ export const useCourses = (
     updateEcts: (totalEcts: number) => void,
     type: 'major' | 'minor'
 ) => {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);  // Use the proper Course interface
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -37,17 +37,21 @@ export const useCourses = (
         const updatedFields = [...selectedFields];
 
         querySnapshot.forEach((doc) => {
-          const course = doc.data() as Course;
-          fetchedCourses.push(course);
-          totalEcts += course.selectedEcts;
+          const courseData = doc.data();
+          fetchedCourses.push({
+            id: doc.id,  // Firestore document ID
+            name: courseData.selectedCourse,  // Store course name
+            ects: courseData.selectedEcts,  // Store ECTS points
+          });
+          totalEcts += courseData.selectedEcts;
 
           const isMinor = doc.id.startsWith('course_minor');
           const index = parseInt(doc.id.replace('course_', '').replace(type === 'major' ? 'major' : 'minor', ''), 10);
 
           if ((type === 'minor' && isMinor) || (type === 'major' && !isMinor)) {
             updatedFields[index] = {
-              selectedCourse: course.selectedCourse,
-              selectedEcts: course.selectedEcts,
+              selectedCourse: courseData.selectedCourse,
+              selectedEcts: courseData.selectedEcts,
             };
           }
         });
@@ -59,7 +63,7 @@ export const useCourses = (
     };
 
     fetchCourses();
-  }, [user, updateEcts, type, selectedFields, setSelectedFields]);  // Add the missing dependencies here
+  }, [user, updateEcts, type, selectedFields, setSelectedFields]);
 
   const handleCourseChange = async (index: number, course: string, type: 'major' | 'minor') => {
     const updatedFields = [...selectedFields];

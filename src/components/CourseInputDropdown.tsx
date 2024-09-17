@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Grid, MenuItem, TextField } from '@mui/material';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebaseConfig';  // Firestore config
+
+interface Course {
+  id: string;
+  name: string;
+  ects: number;
+}
 
 interface CourseInputDropdownProps {
-  ectsOptions: number[];  // List of available ECTS options
+  courses: Course[];  // Use the proper Course interface here
+  ectsOptions: number[];
   selectedCourse: string;
   selectedEcts: number;
   onCourseChange: (course: string) => void;
@@ -13,36 +18,16 @@ interface CourseInputDropdownProps {
 
 const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    ectsOptions,
+                                                                   courses,
                                                                    selectedCourse,
                                                                    selectedEcts,
                                                                    onCourseChange,
-                                                                   onEctsChange
+                                                                   onEctsChange,
                                                                  }) => {
-  const [courses, setCourses] = useState<any[]>([]);
-
-  // Fetch the course names from Firestore (lectures collection)
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'lectures'));
-        const courseList: any[] = [];
-        querySnapshot.forEach((doc) => {
-          const courseData = doc.data();
-          courseList.push({ id: doc.id, name: courseData.Name, ects: courseData.ECTS });  // Push course name and ECTS into array
-        });
-        setCourses(courseList);  // Update state with fetched courses
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      }
-    };
-
-    fetchCourses();  // Fetch courses when the component mounts
-  }, []);
-
   return (
       <Grid container spacing={1} alignItems="center">
         {/* Course Name Dropdown (75% width) */}
-        <Grid item xs={9} style={{ paddingLeft: '20px' }}>  {/* Reduced space between Course and ECTS */}
+        <Grid item xs={9} style={{ paddingLeft: '20px' }}>
           <TextField
               select
               label="Course"
@@ -52,8 +37,8 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               variant="outlined"
               size="small"
           >
-            {courses.map((course, index) => (
-                <MenuItem key={index} value={course.name}>
+            {courses.map((course) => (
+                <MenuItem key={course.id} value={course.name}>
                   {course.name} {/* Display course name */}
                 </MenuItem>
             ))}
@@ -61,7 +46,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
         </Grid>
 
         {/* ECTS Dropdown (25% width) */}
-        <Grid item xs={3} style={{ paddingLeft: '4px' }}>  {/* Adjusted padding for proper alignment */}
+        <Grid item xs={3} style={{ paddingLeft: '2px' }}>
           <TextField
               select
               label="ECTS"

@@ -5,7 +5,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseGrid from '../components/CourseGrid';
 import CourseDialog from '../components/CourseDialog';
 import ProgressBar from '../components/ProgressBar';
-import ScrollableContainer from '../components/ScrollableContainer';  // Import the ScrollableContainer
+import ScrollableContainer from '../components/ScrollableContainer';  // Import ScrollableContainer
 
 function Master() {
   const [user, setUser] = useState<User | null>(null);
@@ -42,25 +42,25 @@ function Master() {
         <ProgressBar currentEcts={totalEcts} totalEcts={120} />
 
         {/* Major Section */}
-        <Box bgcolor="purple" color="white" padding="16px" mt={2}>
+        <Box bgcolor="purple" color="white" padding="16px" mb={1}>  {/* Reduced bottom margin (mb) */}
           <Typography variant="h6">Major Courses (60 ECTS)</Typography>
         </Box>
 
         {/* Scrollable Major Grid */}
-        <ScrollableContainer maxHeight="300px">  {/* Make Major section scrollable */}
-          <Grid container spacing={2} mt={2}>
+        <ScrollableContainer maxHeight="300px">
+          <Grid container spacing={2} mt={0}>  {/* Removed top margin (mt) */}
             <CourseGrid updateEcts={updateEcts} type="major" rows={8} cols={2} />
           </Grid>
         </ScrollableContainer>
 
         {/* Minor Section */}
-        <Box bgcolor="pink" color="black" padding="16px" mt={4}>
+        <Box bgcolor="pink" color="black" padding="16px" mt={3} mb={1}>  {/* Reduced bottom margin (mb) */}
           <Typography variant="h6">Minor Courses (24 ECTS)</Typography>
         </Box>
 
         {/* Scrollable Minor Grid */}
-        <ScrollableContainer maxHeight="300px">  {/* Make Minor section scrollable */}
-          <Grid container spacing={2} mt={2}>
+        <ScrollableContainer maxHeight="300px">
+          <Grid container spacing={2} mt={0}>  {/* Removed top margin (mt) */}
             <CourseGrid updateEcts={updateEcts} type="minor" rows={8} cols={2} />
           </Grid>
         </ScrollableContainer>
