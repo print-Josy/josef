@@ -12,10 +12,9 @@ interface CourseDialogProps {
 
 const CourseDialog: React.FC<CourseDialogProps> = ({ open, onClose }) => {
   const [courseName, setCourseName] = useState('');
-  const [ectsPoints, setEctsPoints] = useState('');
 
   const handleSubmit = async () => {
-    if (courseName && ectsPoints) {
+    if (courseName) {
       const auth = getAuth();
       const user = auth.currentUser;
 
@@ -23,14 +22,12 @@ const CourseDialog: React.FC<CourseDialogProps> = ({ open, onClose }) => {
         try {
           const lecturesRef = collection(db, 'lectures');
           await setDoc(doc(lecturesRef), {
-            courseName,
-            ectsPoints: Number(ectsPoints),
+            Name: courseName,  // Save only the course name
             createdAt: new Date(),
           });
 
           console.log("Course added successfully!");
           setCourseName('');
-          setEctsPoints('');
           onClose(); // Close the dialog after successful submit
         } catch (error) {
           console.error("Error adding document:", error);
@@ -41,27 +38,19 @@ const CourseDialog: React.FC<CourseDialogProps> = ({ open, onClose }) => {
 
   return (
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Add New Course</DialogTitle>
+        <DialogTitle>Add New Lecture</DialogTitle>
         <DialogContent>
           <TextField
-              label="Course Name"
+              label="Lecture Name"
               value={courseName}
               onChange={(e) => setCourseName(e.target.value)}
               fullWidth
               margin="normal"
           />
-          <TextField
-              label="ECTS"
-              value={ectsPoints}
-              onChange={(e) => setEctsPoints(e.target.value)}
-              fullWidth
-              margin="normal"
-              type="number"
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} color="secondary">Cancel</Button>
-          <Button onClick={handleSubmit} color="primary">Add Course</Button>
+          <Button onClick={handleSubmit} color="primary">Add Lecture</Button>
         </DialogActions>
       </Dialog>
   );

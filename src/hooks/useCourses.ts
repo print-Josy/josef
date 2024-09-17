@@ -19,9 +19,10 @@ interface Course {
 export const useCourses = (
     selectedFields: SelectedField[],
     setSelectedFields: React.Dispatch<React.SetStateAction<SelectedField[]>>,
-    updateEcts: (totalEcts: number) => void // Pass the updateEcts function to accumulate ECTS
+    updateEcts: (totalEcts: number) => void,
+    type: 'major' | 'minor'  // Type prop for Major and Minor
 ) => {
-  const [courses, setCourses] = useState<Course[]>([]);  // State for courses
+  const [courses, setCourses] = useState<Course[]>([]);
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -30,83 +31,86 @@ export const useCourses = (
       if (user) {
         const coursesRef = collection(db, `users/${user.uid}/courses`);
         const querySnapshot = await getDocs(coursesRef);
-        const fetchedCourses: Course[] = [];  // Use the Course interface
+        const fetchedCourses: Course[] = [];
 
         let totalEcts = 0;
-
-        const updatedFields = [...selectedFields]; // To keep the selected fields in sync
+        const updatedFields = [...selectedFields];
 
         querySnapshot.forEach((doc) => {
-          const course = doc.data() as Course;  // Cast doc.data() to Course
+          const course = doc.data() as Course;
           fetchedCourses.push(course);
-          totalEcts += course.selectedEcts;  // Accumulate ECTS for each course
+          totalEcts += course.selectedEcts;
 
-          // Update the selectedFields array with the fetched data
-          const index = parseInt(doc.id.replace('course', ''), 10);  // Extract index from document ID
-          updatedFields[index] = {
-            selectedCourse: course.selectedCourse,
-            selectedEcts: course.selectedEcts,
-          };
+          const isMinor = doc.id.startsWith('1');  // Minor courses start with 1XX
+          const index = parseInt(doc.id.replace('course', ''), 10);
+
+          // Only update fields for the corresponding type (Major or Minor)
+          if ((type === 'minor' && isMinor) || (type === 'major' && !isMinor)) {
+            updatedFields[index % 100] = {
+              selectedCourse: course.selectedCourse,
+              selectedEcts: course.selectedEcts,
+            };
+          }
         });
 
-        setCourses(fetchedCourses);  // Update courses state
-        setSelectedFields(updatedFields);  // Set selected fields with fetched data
-        updateEcts(totalEcts);  // Update the total ECTS in the parent component (Master)
+        setCourses(fetchedCourses);
+        setSelectedFields(updatedFields);
+        updateEcts(totalEcts);
       }
     };
 
     fetchCourses();
-  }, [user, updateEcts]);
+  }, [user, updateEcts, type]);
 
-  // Function to handle course changes
-  const handleCourseChange = async (index: number, course: string) => {
+  const handleCourseChange = async (index: number, course: string, type: 'major' | 'minor') => {
     const updatedFields = [...selectedFields];
     updatedFields[index] = { ...updatedFields[index], selectedCourse: course };
     setSelectedFields(updatedFields);
 
     const user = auth.currentUser;
-    if (user && updatedFields[index].selectedEcts) {
-      const courseDoc = doc(db, `users/${user.uid}/courses`, `course${index}`);
+    const courseDocId = type === 'minor' ? `course1${index}` : `course${index}`;
+
+    if (user) {
+      const courseDoc = doc(db, `users/${user.uid}/courses`, courseDocId);
       await setDoc(courseDoc, {
-        selectedEcts: updatedFields[index].selectedEcts || 0,  // Default ECTS to 0 if not selected
         selectedCourse: course,
+        selectedEcts: updatedFields[index].selectedEcts || 0,
       });
 
-      // Re-fetch all courses to update the total ECTS
+      // Update ECTS
       const coursesRef = collection(db, `users/${user.uid}/courses`);
       const querySnapshot = await getDocs(coursesRef);
       let totalEcts = 0;
       querySnapshot.forEach((doc) => {
         totalEcts += doc.data().selectedEcts;
       });
-      updateEcts(totalEcts);  // Update total ECTS in Master
+      updateEcts(totalEcts);
     }
   };
 
-  // Function to handle ECTS changes
-  const handleEctsChange = async (index: number, ects: number) => {
+  const handleEctsChange = async (index: number, ects: number, type: 'major' | 'minor') => {
     const updatedFields = [...selectedFields];
     updatedFields[index] = { ...updatedFields[index], selectedEcts: ects };
     setSelectedFields(updatedFields);
 
     const user = auth.currentUser;
-    if (user && updatedFields[index].selectedCourse) {
-      const courseDoc = doc(db, `users/${user.uid}/courses`, `course${index}`);
+    const courseDocId = type === 'minor' ? `course1${index}` : `course${index}`;
+
+    if (user) {
+      const courseDoc = doc(db, `users/${user.uid}/courses`, courseDocId);
       await setDoc(courseDoc, {
-        selectedEcts: ects,
         selectedCourse: updatedFields[index].selectedCourse,
+        selectedEcts: ects,
       });
 
-      // Re-fetch all courses to update the total ECTS
+      // Update ECTS
       const coursesRef = collection(db, `users/${user.uid}/courses`);
       const querySnapshot = await getDocs(coursesRef);
       let totalEcts = 0;
       querySnapshot.forEach((doc) => {
         totalEcts += doc.data().selectedEcts;
       });
-      updateEcts(totalEcts);  // Update total ECTS in Master
-    } else {
-      console.error('Course or user is not properly selected.');
+      updateEcts(totalEcts);
     }
   };
 

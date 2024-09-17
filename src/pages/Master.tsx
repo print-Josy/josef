@@ -1,76 +1,62 @@
-// src/pages/Master.tsx
 import { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Box, IconButton, Button } from '@mui/material';
-import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';  // Import proper User type
+import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseGrid from '../components/CourseGrid';
 import CourseDialog from '../components/CourseDialog';
 import ProgressBar from '../components/ProgressBar';
-import ScrollableContainer from '../components/ScrollableContainer';
 
 function Master() {
-  const [user, setUser] = useState<User | null>(null);  // Replace 'any' with Firebase User or null
-  const [totalEcts, setTotalEcts] = useState(0);  // State to track total ECTS
-  const [open, setOpen] = useState(false);  // State to manage CourseDialog visibility
+  const [user, setUser] = useState<User | null>(null);
+  const [totalEcts, setTotalEcts] = useState(0);  // Total ECTS for Major and Minor
+  const [open, setOpen] = useState(false);
   const auth = getAuth();
 
-  // Monitor user login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-      } else {
-        setUser(null);
-      }
+      setUser(currentUser || null);
     });
     return () => unsubscribe();
   }, [auth]);
 
   const handleSignOut = () => {
-    signOut(auth).then(() => {
-      console.log('User signed out');
-    });
+    signOut(auth).then(() => console.log('User signed out'));
   };
 
   const updateEcts = (ects: number) => {
-    setTotalEcts(ects);  // Update the total ECTS state
+    setTotalEcts(ects);
   };
 
   return (
       <Container>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4" gutterBottom>ECTS Tracker</Typography>
-
-          {/* Account Icon */}
           <IconButton onClick={handleSignOut} color="inherit">
             <AccountCircleIcon fontSize="large" />
             {user ? <Typography>{user.email}</Typography> : <Typography>Guest</Typography>}
           </IconButton>
         </Box>
 
-        {/* ECTS Master and Progress Bar Section */}
+        {/* Progress Bar */}
         <ProgressBar currentEcts={totalEcts} totalEcts={120} />
 
+        {/* Major Section */}
+        <Box bgcolor="purple" color="white" padding="16px" mt={2}>
+          <Typography variant="h6">Major Courses (60 ECTS)</Typography>
+        </Box>
+
         <Grid container spacing={2} mt={2}>
-          {/* Major and Minor sections */}
-          <Grid item xs={6}>
-            <Box bgcolor="purple" color="white" padding="16px" display="flex" justifyContent="space-between">
-              <Typography variant="h6">Major</Typography>
-              <Typography variant="h6">60 ECTS</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6}>
-            <Box bgcolor="pink" color="black" padding="16px" display="flex" justifyContent="space-between">
-              <Typography variant="h6">Minor</Typography>
-              <Typography variant="h6">24 ECTS</Typography>
-            </Box>
-          </Grid>
+          <CourseGrid updateEcts={updateEcts} type="major" rows={8} cols={2} />
         </Grid>
 
-        {/* Scrollable Course Grid */}
-        <ScrollableContainer maxHeight="50vh">  {/* Apply scroll to course grid */}
-          <CourseGrid updateEcts={updateEcts} />  {/* Ensure CourseGrid receives updateEcts */}
-        </ScrollableContainer>
+        {/* Minor Section */}
+        <Box bgcolor="pink" color="black" padding="16px" mt={4}>
+          <Typography variant="h6">Minor Courses (24 ECTS)</Typography>
+        </Box>
+
+        <Grid container spacing={2} mt={2}>
+          <CourseGrid updateEcts={updateEcts} type="minor" rows={8} cols={2} />
+        </Grid>
 
         <Typography variant="h6" mt={2}>Total ECTS: {totalEcts}</Typography>
 
@@ -78,10 +64,8 @@ function Master() {
           Add New Course
         </Button>
 
-        {/* Course input popup */}
         <CourseDialog open={open} onClose={() => setOpen(false)} />
 
-        {/* Back to Menu Button */}
         <Button variant="contained" color="primary" style={{ marginTop: '20px' }} onClick={() => window.location.href = '/'}>
           Back to Menu
         </Button>
