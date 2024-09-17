@@ -20,7 +20,7 @@ const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts, type, rows, cols })
   const { courses, handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts, type);
 
   return (
-      <Grid container spacing={2}>
+      <Grid container spacing={1}>
         {selectedFields.map((field, index) => (
             <Grid item xs={12 / cols} key={index}>
               <CourseInputDropdown

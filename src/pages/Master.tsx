@@ -5,10 +5,11 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseGrid from '../components/CourseGrid';
 import CourseDialog from '../components/CourseDialog';
 import ProgressBar from '../components/ProgressBar';
+import ScrollableContainer from '../components/ScrollableContainer';  // Import the ScrollableContainer
 
 function Master() {
   const [user, setUser] = useState<User | null>(null);
-  const [totalEcts, setTotalEcts] = useState(0);  // Total ECTS for Major and Minor
+  const [totalEcts, setTotalEcts] = useState(0);
   const [open, setOpen] = useState(false);
   const auth = getAuth();
 
@@ -45,18 +46,24 @@ function Master() {
           <Typography variant="h6">Major Courses (60 ECTS)</Typography>
         </Box>
 
-        <Grid container spacing={2} mt={2}>
-          <CourseGrid updateEcts={updateEcts} type="major" rows={8} cols={2} />
-        </Grid>
+        {/* Scrollable Major Grid */}
+        <ScrollableContainer maxHeight="300px">  {/* Make Major section scrollable */}
+          <Grid container spacing={2} mt={2}>
+            <CourseGrid updateEcts={updateEcts} type="major" rows={8} cols={2} />
+          </Grid>
+        </ScrollableContainer>
 
         {/* Minor Section */}
         <Box bgcolor="pink" color="black" padding="16px" mt={4}>
           <Typography variant="h6">Minor Courses (24 ECTS)</Typography>
         </Box>
 
-        <Grid container spacing={2} mt={2}>
-          <CourseGrid updateEcts={updateEcts} type="minor" rows={8} cols={2} />
-        </Grid>
+        {/* Scrollable Minor Grid */}
+        <ScrollableContainer maxHeight="300px">  {/* Make Minor section scrollable */}
+          <Grid container spacing={2} mt={2}>
+            <CourseGrid updateEcts={updateEcts} type="minor" rows={8} cols={2} />
+          </Grid>
+        </ScrollableContainer>
 
         <Typography variant="h6" mt={2}>Total ECTS: {totalEcts}</Typography>
 

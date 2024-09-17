@@ -20,7 +20,7 @@ export const useCourses = (
     selectedFields: SelectedField[],
     setSelectedFields: React.Dispatch<React.SetStateAction<SelectedField[]>>,
     updateEcts: (totalEcts: number) => void,
-    type: 'major' | 'minor'  // Type prop for Major and Minor distinction
+    type: 'major' | 'minor'
 ) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const auth = getAuth();
@@ -41,11 +41,9 @@ export const useCourses = (
           fetchedCourses.push(course);
           totalEcts += course.selectedEcts;
 
-          // Determine if this is a Minor or Major course based on the document ID prefix
-          const isMinor = doc.id.startsWith('course_minor');  // Minor courses start with 'course_minorXX'
+          const isMinor = doc.id.startsWith('course_minor');
           const index = parseInt(doc.id.replace('course_', '').replace(type === 'major' ? 'major' : 'minor', ''), 10);
 
-          // Only update fields for the corresponding type (Major or Minor)
           if ((type === 'minor' && isMinor) || (type === 'major' && !isMinor)) {
             updatedFields[index] = {
               selectedCourse: course.selectedCourse,
@@ -61,7 +59,7 @@ export const useCourses = (
     };
 
     fetchCourses();
-  }, [user, updateEcts, type]);
+  }, [user, updateEcts, type, selectedFields, setSelectedFields]);  // Add the missing dependencies here
 
   const handleCourseChange = async (index: number, course: string, type: 'major' | 'minor') => {
     const updatedFields = [...selectedFields];
@@ -75,10 +73,9 @@ export const useCourses = (
       const courseDoc = doc(db, `users/${user.uid}/courses`, courseDocId);
       await setDoc(courseDoc, {
         selectedCourse: course,
-        selectedEcts: updatedFields[index].selectedEcts || 0,  // Default to 0 if ECTS not selected
+        selectedEcts: updatedFields[index].selectedEcts || 0,
       });
 
-      // Update ECTS
       const coursesRef = collection(db, `users/${user.uid}/courses`);
       const querySnapshot = await getDocs(coursesRef);
       let totalEcts = 0;
@@ -104,7 +101,6 @@ export const useCourses = (
         selectedEcts: ects,
       });
 
-      // Update ECTS
       const coursesRef = collection(db, `users/${user.uid}/courses`);
       const querySnapshot = await getDocs(coursesRef);
       let totalEcts = 0;

@@ -1,8 +1,7 @@
-// src/components/CourseInputDropdown.tsx
-import React, {useEffect, useState} from 'react';
-import {Grid, MenuItem, TextField} from '@mui/material';
-import {collection, getDocs} from 'firebase/firestore';
-import {db} from '../firebaseConfig';  // Firestore config
+import React, { useEffect, useState } from 'react';
+import { Grid, MenuItem, TextField } from '@mui/material';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebaseConfig';  // Firestore config
 
 interface CourseInputDropdownProps {
   ectsOptions: number[];  // List of available ECTS options
@@ -10,10 +9,6 @@ interface CourseInputDropdownProps {
   selectedEcts: number;
   onCourseChange: (course: string) => void;
   onEctsChange: (ects: number) => void;
-}
-
-interface CourseInputDropdownProps {
-  courses?: any[]
 }
 
 const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
@@ -33,7 +28,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
         const courseList: any[] = [];
         querySnapshot.forEach((doc) => {
           const courseData = doc.data();
-          courseList.push({id: doc.id, name: courseData.Name, ects: courseData.ECTS});  // Push course name and ECTS into array
+          courseList.push({ id: doc.id, name: courseData.Name, ects: courseData.ECTS });  // Push course name and ECTS into array
         });
         setCourses(courseList);  // Update state with fetched courses
       } catch (error) {
@@ -45,9 +40,9 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
   }, []);
 
   return (
-      <Grid container spacing={2} alignItems="center">
+      <Grid container spacing={1} alignItems="center">
         {/* Course Name Dropdown (75% width) */}
-        <Grid item xs={9}>
+        <Grid item xs={9} style={{ paddingLeft: '20px' }}>  {/* Reduced space between Course and ECTS */}
           <TextField
               select
               label="Course"
@@ -66,7 +61,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
         </Grid>
 
         {/* ECTS Dropdown (25% width) */}
-        <Grid item xs={3}>
+        <Grid item xs={3} style={{ paddingLeft: '4px' }}>  {/* Adjusted padding for proper alignment */}
           <TextField
               select
               label="ECTS"

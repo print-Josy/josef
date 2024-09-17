@@ -1,4 +1,3 @@
-// src/components/ScrollableContainer.tsx
 import React from 'react';
 import { Box } from '@mui/material';
 
@@ -16,9 +15,11 @@ const ScrollableContainer: React.FC<ScrollableContainerProps> = ({ children, max
             padding: '10px',
             border: '1px solid #ccc',
             borderRadius: '4px',
+            boxSizing: 'border-box',  // Ensure padding doesn't cut off content
+            display: 'block',
           }}
       >
-        {children}  {/* Render children, which may include CourseGrid */}
+        {children}
       </Box>
   );
 };
