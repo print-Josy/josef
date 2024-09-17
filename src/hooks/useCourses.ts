@@ -34,13 +34,23 @@ export const useCourses = (
 
         let totalEcts = 0;
 
+        const updatedFields = [...selectedFields]; // To keep the selected fields in sync
+
         querySnapshot.forEach((doc) => {
           const course = doc.data() as Course;  // Cast doc.data() to Course
           fetchedCourses.push(course);
           totalEcts += course.selectedEcts;  // Accumulate ECTS for each course
+
+          // Update the selectedFields array with the fetched data
+          const index = parseInt(doc.id.replace('course', ''), 10);  // Extract index from document ID
+          updatedFields[index] = {
+            selectedCourse: course.selectedCourse,
+            selectedEcts: course.selectedEcts,
+          };
         });
 
         setCourses(fetchedCourses);  // Update courses state
+        setSelectedFields(updatedFields);  // Set selected fields with fetched data
         updateEcts(totalEcts);  // Update the total ECTS in the parent component (Master)
       }
     };

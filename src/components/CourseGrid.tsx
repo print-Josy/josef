@@ -18,7 +18,6 @@ const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts }) => {
   // Use your useCourses hook
   const { courses, handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts);
 
-
   return (
       <Grid container spacing={2}>
         {selectedFields.map((field, index) => (
