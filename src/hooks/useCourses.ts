@@ -20,7 +20,7 @@ export const useCourses = (
     selectedFields: SelectedField[],
     setSelectedFields: React.Dispatch<React.SetStateAction<SelectedField[]>>,
     updateEcts: (totalEcts: number) => void,
-    type: 'major' | 'minor'  // Type prop for Major and Minor
+    type: 'major' | 'minor'  // Type prop for Major and Minor distinction
 ) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const auth = getAuth();
@@ -41,12 +41,13 @@ export const useCourses = (
           fetchedCourses.push(course);
           totalEcts += course.selectedEcts;
 
-          const isMinor = doc.id.startsWith('1');  // Minor courses start with 1XX
-          const index = parseInt(doc.id.replace('course', ''), 10);
+          // Determine if this is a Minor or Major course based on the document ID prefix
+          const isMinor = doc.id.startsWith('course_minor');  // Minor courses start with 'course_minorXX'
+          const index = parseInt(doc.id.replace('course_', '').replace(type === 'major' ? 'major' : 'minor', ''), 10);
 
           // Only update fields for the corresponding type (Major or Minor)
           if ((type === 'minor' && isMinor) || (type === 'major' && !isMinor)) {
-            updatedFields[index % 100] = {
+            updatedFields[index] = {
               selectedCourse: course.selectedCourse,
               selectedEcts: course.selectedEcts,
             };
@@ -68,13 +69,13 @@ export const useCourses = (
     setSelectedFields(updatedFields);
 
     const user = auth.currentUser;
-    const courseDocId = type === 'minor' ? `course1${index}` : `course${index}`;
+    const courseDocId = type === 'minor' ? `course_minor${index}` : `course_major${index}`;
 
     if (user) {
       const courseDoc = doc(db, `users/${user.uid}/courses`, courseDocId);
       await setDoc(courseDoc, {
         selectedCourse: course,
-        selectedEcts: updatedFields[index].selectedEcts || 0,
+        selectedEcts: updatedFields[index].selectedEcts || 0,  // Default to 0 if ECTS not selected
       });
 
       // Update ECTS
@@ -94,7 +95,7 @@ export const useCourses = (
     setSelectedFields(updatedFields);
 
     const user = auth.currentUser;
-    const courseDocId = type === 'minor' ? `course1${index}` : `course${index}`;
+    const courseDocId = type === 'minor' ? `course_minor${index}` : `course_major${index}`;
 
     if (user) {
       const courseDoc = doc(db, `users/${user.uid}/courses`, courseDocId);
