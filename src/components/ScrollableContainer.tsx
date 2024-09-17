@@ -13,13 +13,12 @@ const ScrollableContainer: React.FC<ScrollableContainerProps> = ({ children, max
             overflowY: 'auto',
             maxHeight: maxHeight,
             padding: '10px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            boxSizing: 'border-box',  // Ensure padding doesn't cut off content
-            display: 'block',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',  // Slightly opaque white background
+            border: '1px solid #ccc',  // Optional border for clarity
           }}
       >
-        {children}
+        {children}  {/* Render the course grid inside the scrollable box */}
       </Box>
   );
 };

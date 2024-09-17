@@ -13,12 +13,13 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ currentEcts, totalEcts }) => 
   return (
       <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
         {/* Progress bar */}
+        <Typography variant="h5" color="secondary">{`${currentEcts} ECTS of ${totalEcts}`}</Typography>
+
         <Box width="100%" maxWidth="600px" mb={1}>
-          <LinearProgress variant="determinate" value={progress} style={{ height: '25px', backgroundColor: '#ccc' }} />
+          <LinearProgress variant="determinate" value={progress} style={{ height: '20px', backgroundColor: '#ccc' }} />
         </Box>
 
-        {/* Display current progress (e.g., "60 ECTS") */}
-        <Typography variant="h6" color="primary">{`${currentEcts} ECTS of ${totalEcts}`}</Typography>
+
       </Box>
   );
 };
