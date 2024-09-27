@@ -39,7 +39,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
           >
             {courses.map((course) => (
                 <MenuItem key={course.id} value={course.name}>
-                  {course.name} {/* Display course name */}
+                  {course.name} {/* Display LECTURES names */}
                 </MenuItem>
             ))}
           </TextField>

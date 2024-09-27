@@ -49,7 +49,6 @@ function Master() {
               {user ? <Typography>{user.email}</Typography> : <Typography>Guest</Typography>}
             </IconButton>
           </Box>
-
           {/* Progress Bar */}
           <ProgressBar currentEcts={totalEcts} totalEcts={120} />
 

@@ -17,14 +17,14 @@ const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts, type, rows, cols })
   );
 
   const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10, 30];
-  const { courses, handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts, type);
+  const { lectures, handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts, type);
 
   return (
       <Grid container spacing={1}>
         {selectedFields.map((field, index) => (
             <Grid item xs={12 / cols} key={index}>
               <CourseInputDropdown
-                  courses={courses}
+                  courses={lectures}  // Pass the predefined lectures for the dropdown
                   ectsOptions={ectsOptions}
                   selectedCourse={field.selectedCourse}
                   selectedEcts={field.selectedEcts}
