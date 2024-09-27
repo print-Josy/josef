@@ -1,20 +1,18 @@
-import React, { useState } from 'react';
+import React, {  } from 'react';
 import { Grid } from '@mui/material';
 import CourseInputDropdown from './CourseInputDropdown';
-import { useCourses } from '../hooks/useCourses';
+import { useCourses, SelectedField } from '../hooks/useCourses';
 
 interface CourseGridProps {
   updateEcts: (ects: number) => void;
-  type: 'major' | 'minor';  // Add type prop for Major and Minor distinction
+  type: 'major' | 'minor';
   rows: number;
   cols: number;
+  selectedFields: SelectedField[]; // Passed from Master component
+  setSelectedFields: React.Dispatch<React.SetStateAction<SelectedField[]>>; // Passed from Master component
 }
 
-const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts, type, rows, cols }) => {
-  const totalFields = rows * cols;
-  const [selectedFields, setSelectedFields] = useState(
-      Array(totalFields).fill({ selectedCourse: '', selectedEcts: 0 })
-  );
+const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts, type, cols, selectedFields, setSelectedFields }) => {
 
   const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10, 30];
   const { lectures, handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts, type);

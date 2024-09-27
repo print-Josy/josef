@@ -1,3 +1,4 @@
+import { SaveCourses } from '../hooks/useCourses';
 import { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Box, IconButton, Button } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
@@ -6,11 +7,21 @@ import CourseGrid from '../components/CourseGrid';
 import CourseDialog from '../components/CourseDialog';
 import ProgressBar from '../components/ProgressBar';
 import ScrollableContainer from '../components/ScrollableContainer';
-import NavButton from "../components/NavButton.tsx";  // Import ScrollableContainer
+import NavButton from "../components/NavButton.tsx";
 
 function Master() {
   const [user, setUser] = useState<User | null>(null);
   const [totalEcts, setTotalEcts] = useState(0);
+  const [majorFields, setMajorFields] = useState([...Array(20)].map(() => ({
+    selectedCourse: '',
+    selectedEcts: 0,
+  }))); // Track major courses
+
+  const [minorFields, setMinorFields] = useState([...Array(20)].map(() => ({
+    selectedCourse: '',
+    selectedEcts: 0,
+  }))); // Track minor courses
+
   const [open, setOpen] = useState(false);
   const auth = getAuth();
 
@@ -29,6 +40,12 @@ function Master() {
     setTotalEcts(ects);
   };
 
+  // Single save handler for both major and minor courses
+  const saveCoursesHandler = () => {
+    const saveCourses = new SaveCourses(user, majorFields, minorFields);
+    saveCourses.save();  // Save both major and minor courses at the same time
+  };
+
   return (
       <Box
           sx={{
@@ -36,9 +53,9 @@ function Master() {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
-            minHeight: '100vh', // Ensure it covers the full screen height
-            padding: '20px',    // Add padding around the content
-            overflow: 'auto',   // Allow scrolling when content overflows
+            minHeight: '100vh',
+            padding: '20px',
+            overflow: 'auto',
           }}
       >
         <Container>
@@ -49,6 +66,12 @@ function Master() {
               {user ? <Typography>{user.email}</Typography> : <Typography>Guest</Typography>}
             </IconButton>
           </Box>
+
+          {/* Update Data Button */}
+          <Button variant="contained" color="primary" onClick={saveCoursesHandler}>
+            Update Data
+          </Button>
+
           {/* Progress Bar */}
           <ProgressBar currentEcts={totalEcts} totalEcts={120} />
 
@@ -60,7 +83,14 @@ function Master() {
           {/* Scrollable Major Grid */}
           <ScrollableContainer maxHeight="300px">
             <Grid container spacing={2} mt={0}>
-              <CourseGrid updateEcts={updateEcts} type="major" rows={8} cols={2} />
+              <CourseGrid
+                  updateEcts={updateEcts}
+                  type="major"
+                  rows={8}
+                  cols={2}
+                  selectedFields={majorFields}  // Pass major courses
+                  setSelectedFields={setMajorFields}  // Update major courses
+              />
             </Grid>
           </ScrollableContainer>
 
@@ -72,7 +102,14 @@ function Master() {
           {/* Scrollable Minor Grid */}
           <ScrollableContainer maxHeight="300px">
             <Grid container spacing={2} mt={0}>
-              <CourseGrid updateEcts={updateEcts} type="minor" rows={8} cols={2} />
+              <CourseGrid
+                  updateEcts={updateEcts}
+                  type="minor"
+                  rows={8}
+                  cols={2}
+                  selectedFields={minorFields}  // Pass minor courses
+                  setSelectedFields={setMinorFields}  // Update minor courses
+              />
             </Grid>
           </ScrollableContainer>
 

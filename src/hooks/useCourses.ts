@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import { getAuth } from 'firebase/auth';
+import { User, getAuth } from 'firebase/auth';
 
 // Define a type for each field in selectedFields
-interface SelectedField {
+export interface SelectedField {
   selectedCourse: string;
   selectedEcts: number;
 }
@@ -30,25 +30,25 @@ export const useCourses = (
 
   // Fetch courses (user data)
   useEffect(() => {
-    if (!user) return;
+    const fetchCourses = async () => {
+      if (!user) return;
 
-    const coursesRef = collection(db, `users/${user.uid}/courses`);
+      const coursesRef = collection(db, `users/${user.uid}/courses`);
+      const querySnapshot = await getDocs(coursesRef);
 
-    // Use onSnapshot to listen for changes in courses and reduce the number of reads
-    const unsubscribe = onSnapshot(coursesRef, (querySnapshot) => {
       const fetchedCourses: Course[] = [];
       let totalEcts = 0;
       const updatedFields = [...selectedFields];
 
       querySnapshot.forEach((doc) => {
         const courseData = doc.data();
-        const courseType = doc.id.startsWith('course_minor') ? 'minor' : 'major';  // Identify type based on ID
+        const courseType = doc.id.startsWith('course_minor') ? 'minor' : 'major';
 
         fetchedCourses.push({
-          id: doc.id,  // Firestore document ID
-          name: courseData.selectedCourse,  // Course name
-          ects: courseData.selectedEcts,  // Course ECTS points
-          type: courseType,  // Major or Minor
+          id: doc.id,
+          name: courseData.selectedCourse,
+          ects: courseData.selectedEcts,
+          type: courseType,
         });
 
         totalEcts += courseData.selectedEcts;
@@ -66,10 +66,10 @@ export const useCourses = (
 
       setCourses(fetchedCourses);
       setSelectedFields(updatedFields);
-      updateEcts(totalEcts);  // Update the total ECTS after loading all courses
-    });
+      updateEcts(totalEcts);
+    };
 
-    return () => unsubscribe();  // Cleanup the listener on component unmount
+    fetchCourses();
   }, [user, updateEcts, setSelectedFields, selectedFields, type]);
 
   // Fetch predefined lectures (for dropdown options)
@@ -134,3 +134,46 @@ export const useCourses = (
 
   return { courses, lectures, handleCourseChange, handleEctsChange };
 };
+
+class SaveCourses {
+  user: User | null;
+  majorFields: SelectedField[];
+  minorFields: SelectedField[];
+
+  constructor(user: User | null, majorFields: SelectedField[], minorFields: SelectedField[]) {
+    this.user = user;
+    this.majorFields = majorFields;
+    this.minorFields = minorFields;
+  }
+
+  async save() {
+    if (!this.user) return;
+
+    const coursesRef = collection(db, `users/${this.user.uid}/courses`);
+
+    // Save Major Courses
+    for (let index = 0; index < this.majorFields.length; index++) {
+      const field = this.majorFields[index];
+      const courseDocId = `course_major${index}`;
+      await setDoc(doc(coursesRef, courseDocId), {
+        selectedCourse: field.selectedCourse,
+        selectedEcts: field.selectedEcts,
+      });
+    }
+
+    // Save Minor Courses
+    for (let index = 0; index < this.minorFields.length; index++) {
+      const field = this.minorFields[index];
+      const courseDocId = `course_minor${index}`;
+      await setDoc(doc(coursesRef, courseDocId), {
+        selectedCourse: field.selectedCourse,
+        selectedEcts: field.selectedEcts,
+      });
+    }
+
+    console.log("Major and Minor data updated successfully!");
+  }
+}
+
+export { SaveCourses };
+
