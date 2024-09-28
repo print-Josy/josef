@@ -1,6 +1,6 @@
 import { SaveCourses } from '../hooks/useCourses';
 import { useState, useEffect } from 'react';
-import { Container, Typography, Grid, Box, IconButton, Button } from '@mui/material';
+import {Container, Typography, Grid, Box, IconButton, Button, Checkbox} from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseGrid from '../components/CourseGrid';
@@ -12,18 +12,21 @@ import NavButton from "../components/NavButton.tsx";
 function Master() {
   const [user, setUser] = useState<User | null>(null);
   const [totalEcts, setTotalEcts] = useState(0);
-  const [majorFields, setMajorFields] = useState([...Array(20)].map(() => ({
+  const [majorFields, setMajorFields] = useState([...Array(16)].map(() => ({
     selectedCourse: '',
     selectedEcts: 0,
   }))); // Track major courses
 
-  const [minorFields, setMinorFields] = useState([...Array(20)].map(() => ({
+  const [minorFields, setMinorFields] = useState([...Array(16)].map(() => ({
     selectedCourse: '',
     selectedEcts: 0,
   }))); // Track minor courses
 
   const [open, setOpen] = useState(false);
   const auth = getAuth();
+  const [isMasterThesisChecked, setIsMasterThesisChecked] = useState(false);
+  const [isOptionalCoursesChecked, setIsOptionalCoursesChecked] = useState(false);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -48,7 +51,14 @@ function Master() {
       // After saving, recalculate the total ECTS and update the progress bar
       const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
       const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
-      const totalEcts = totalMajorEcts + totalMinorEcts;
+      // Add ECTS from checkboxes if checked
+      let totalEcts = totalMajorEcts + totalMinorEcts;
+      if (isMasterThesisChecked) {
+        totalEcts += 30;  // Add 30 ECTS for Master Thesis
+      }
+      if (isOptionalCoursesChecked) {
+        totalEcts += 6;  // Add 6 ECTS for Optional Courses
+      }
 
       updateEcts(totalEcts);  // This will trigger the progress bar to update
     });
@@ -84,8 +94,8 @@ function Master() {
           <ProgressBar currentEcts={totalEcts} totalEcts={120} />
 
           {/* Major Section */}
-          <Box bgcolor="purple" color="white" padding="16px" mb={1}>
-            <Typography variant="h6">Major Courses (60 ECTS)</Typography>
+          <Box bgcolor="purple" color="white" padding="10px" mb={1}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}> Major Courses (60 ECTS)</Typography>
           </Box>
 
           {/* Scrollable Major Grid */}
@@ -103,17 +113,19 @@ function Master() {
           </ScrollableContainer>
 
           {/* Minor Section */}
-          <Box bgcolor="pink" color="black" padding="16px" mt={3} mb={1}>
-            <Typography variant="h6">Minor Courses (24 ECTS)</Typography>
+          <Box bgcolor="#F7C5FC" color="black" padding="8px" mt={3} mb={1}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              Minor Courses (24 ECTS)
+            </Typography>
           </Box>
 
           {/* Scrollable Minor Grid */}
-          <ScrollableContainer maxHeight="300px">
+          <ScrollableContainer maxHeight="260px">
             <Grid container spacing={2} mt={0}>
               <CourseGrid
                   updateEcts={updateEcts}
                   type="minor"
-                  rows={8}
+                  rows={6}
                   cols={2}
                   selectedFields={minorFields}  // Pass minor courses
                   setSelectedFields={setMinorFields}  // Update minor courses
@@ -121,7 +133,23 @@ function Master() {
             </Grid>
           </ScrollableContainer>
 
-          <Typography variant="h6" mt={2}>Total ECTS: {totalEcts}</Typography>
+          <Box display="flex" alignItems="center">
+            <Checkbox
+                checked={isMasterThesisChecked}
+                onChange={() => setIsMasterThesisChecked(!isMasterThesisChecked)}
+            />
+            <Typography>Master Thesis (30 ECTS)</Typography>
+          </Box>
+
+          <Box display="flex" alignItems="center">
+            <Checkbox
+                checked={isOptionalCoursesChecked}
+                onChange={() => setIsOptionalCoursesChecked(!isOptionalCoursesChecked)}
+            />
+            <Typography>Optional Courses (6 ECTS)</Typography>
+          </Box>
+
+          {/*<Typography variant="h6" mt={2}>Total ECTS: {totalEcts}</Typography> */}
 
           <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} style={{ }}>
             Add New Course
