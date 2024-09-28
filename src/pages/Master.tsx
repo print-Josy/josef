@@ -85,11 +85,6 @@ function Master() {
             </IconButton>
           </Box>
 
-          {/* Update Data Button */}
-          <Button variant="contained" color="primary" onClick={saveCoursesHandler}>
-            Update Data
-          </Button>
-
           {/* Progress Bar */}
           <ProgressBar currentEcts={totalEcts} totalEcts={120} />
 
@@ -133,20 +128,27 @@ function Master() {
             </Grid>
           </ScrollableContainer>
 
-          <Box display="flex" alignItems="center">
-            <Checkbox
-                checked={isMasterThesisChecked}
-                onChange={() => setIsMasterThesisChecked(!isMasterThesisChecked)}
-            />
-            <Typography>Master Thesis (30 ECTS)</Typography>
-          </Box>
+          <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
+            <Box display="flex" alignItems="center">
+              <Checkbox
+                  checked={isMasterThesisChecked}
+                  onChange={() => setIsMasterThesisChecked(!isMasterThesisChecked)}
+              />
+              <Typography>Master Thesis (30 ECTS)</Typography>
+            </Box>
 
-          <Box display="flex" alignItems="center">
-            <Checkbox
-                checked={isOptionalCoursesChecked}
-                onChange={() => setIsOptionalCoursesChecked(!isOptionalCoursesChecked)}
-            />
-            <Typography>Optional Courses (6 ECTS)</Typography>
+            <Box display="flex" alignItems="center">
+              <Checkbox
+                  checked={isOptionalCoursesChecked}
+                  onChange={() => setIsOptionalCoursesChecked(!isOptionalCoursesChecked)}
+              />
+              <Typography>Optional Courses (6 ECTS)</Typography>
+            </Box>
+
+            {/* Update Data Button */}
+            <Button variant="contained" color="primary" onClick={saveCoursesHandler}>
+              Update Data
+            </Button>
           </Box>
 
           {/*<Typography variant="h6" mt={2}>Total ECTS: {totalEcts}</Typography> */}
