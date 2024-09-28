@@ -40,10 +40,18 @@ function Master() {
     setTotalEcts(ects);
   };
 
-  // Single save handler for both major and minor courses
+// Single save handler for both major and minor courses
   const saveCoursesHandler = () => {
     const saveCourses = new SaveCourses(user, majorFields, minorFields);
-    saveCourses.save();  // Save both major and minor courses at the same time
+
+    saveCourses.save().then(() => {
+      // After saving, recalculate the total ECTS and update the progress bar
+      const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
+      const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
+      const totalEcts = totalMajorEcts + totalMinorEcts;
+
+      updateEcts(totalEcts);  // This will trigger the progress bar to update
+    });
   };
 
   return (

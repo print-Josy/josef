@@ -70,32 +70,37 @@ export const useCourses = (
     };
 
     fetchCourses();
-  }, [user, updateEcts, setSelectedFields, selectedFields, type]);
+  }, [user, type]);
 
-  // Fetch predefined lectures (for dropdown options)
   useEffect(() => {
-    const fetchLectures = async () => {
-      try {
-        const lecturesCollection = collection(db, 'lectures');
-        const querySnapshot = await getDocs(lecturesCollection);
-        const fetchedLectures: Course[] = [];
+    const cachedLectures = localStorage.getItem('lectures');
+    if (cachedLectures) {
+      setLectures(JSON.parse(cachedLectures));
+    } else {
+      const fetchLectures = async () => {
+        try {
+          const lecturesCollection = collection(db, 'lectures');
+          const querySnapshot = await getDocs(lecturesCollection);
+          const fetchedLectures: Course[] = [];
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          fetchedLectures.push({
-            id: doc.id,
-            name: data.Name,  // Ensure the field names match Firestore data
-            ects: data.ECTS,
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            fetchedLectures.push({
+              id: doc.id,
+              name: data.Name,
+              ects: data.ECTS,
+            });
           });
-        });
 
-        setLectures(fetchedLectures);
-      } catch (error) {
-        console.error('Error fetching lectures:', error);
-      }
-    };
+          setLectures(fetchedLectures);
+          localStorage.setItem('lectures', JSON.stringify(fetchedLectures));
+        } catch (error) {
+          console.error('Error fetching lectures:', error);
+        }
+      };
 
-    fetchLectures();  // Fetch lectures when component mounts
+      fetchLectures();  // Fetch lectures if not cached
+    }
   }, []);
 
   const handleCourseChange = async (index: number, course: string, type: 'major' | 'minor') => {
