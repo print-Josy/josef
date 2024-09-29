@@ -29,12 +29,24 @@ function Master() {
   const [isMasterThesisChecked, setIsMasterThesisChecked] = useState(false);
   const [isOptionalCoursesChecked, setIsOptionalCoursesChecked] = useState(false);
 
+  // New state to track if the screen is vertical (portrait mode)
+  const [isVertical, setIsVertical] = useState(window.innerHeight > window.innerWidth);
+
+  // Detect screen orientation changes
+  useEffect(() => {
+    const handleResize = () => {
+      setIsVertical(window.innerHeight > window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser || null);
 
       if (currentUser) {
-        // Load courses and checkboxes state when component is mounted
         const userRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
@@ -49,7 +61,6 @@ function Master() {
           setIsOptionalCoursesChecked(data.isOptionalCoursesChecked || false);
         }
 
-        // Load courses and calculate ECTS
         const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
         const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
         let totalEcts = totalMajorEcts + totalMinorEcts;
@@ -68,7 +79,6 @@ function Master() {
     return () => unsubscribe();
   }, [auth, majorFields, minorFields, isMasterThesisChecked, isOptionalCoursesChecked]);
 
-
   const handleSignOut = () => {
     signOut(auth).then(() => window.location.href = '/');
   };
@@ -77,8 +87,6 @@ function Master() {
     setTotalEcts(ects);
   };
 
-
-  // Save only the checkboxes when they change
   const saveCheckboxes = async (newMasterThesisState: boolean, newOptionalCoursesState: boolean) => {
     if (user) {
       const checkboxesRef = doc(db, `users/${user.uid}/courses`, 'course_checkboxes');
@@ -90,21 +98,18 @@ function Master() {
     }
   };
 
-// Handle Master Thesis checkbox changes
   const handleMasterThesisChange = () => {
     const newMasterThesisState = !isMasterThesisChecked;
     setIsMasterThesisChecked(newMasterThesisState);
-    saveCheckboxes(newMasterThesisState, isOptionalCoursesChecked); // Only save when it changes
+    saveCheckboxes(newMasterThesisState, isOptionalCoursesChecked);
   };
 
-// Handle Optional Courses checkbox changes
   const handleOptionalCoursesChange = () => {
     const newOptionalCoursesState = !isOptionalCoursesChecked;
     setIsOptionalCoursesChecked(newOptionalCoursesState);
-    saveCheckboxes(isMasterThesisChecked, newOptionalCoursesState); // Only save when it changes
+    saveCheckboxes(isMasterThesisChecked, newOptionalCoursesState);
   };
 
-  // Calculate ECTS for major and minor separately
   const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
   const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
 
@@ -129,7 +134,6 @@ function Master() {
             </IconButton>
           </Box>
 
-          {/* Total ECTS Progress Bar */}
           <Box
               display="flex"
               justifyContent="center"
@@ -137,99 +141,39 @@ function Master() {
               width="100%"
               maxWidth="100%"
               mx="auto"
-              sx={{
-                mt: 0,
-                mb: 4,
-                px: 0,
-              }}
+              sx={{ mt: 0, mb: 4, px: 0 }}
           >
-            <ProgressBar
-                currentEcts={totalEcts}
-                totalEcts={120}
-                color="#7B80F7"
-                height={40}
-                textAlign="center"
-                fontSize={20}
-                backgroundColor="#c1bcf4"
-            />
+            <ProgressBar currentEcts={totalEcts} totalEcts={120} color="#7B80F7" height={40} textAlign="center" fontSize={20} backgroundColor="#c1bcf4" />
           </Box>
 
-          {/* Major Section */}
-          {/* Major Courses Progress Bar */}
-          <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              width="100%"
-              maxWidth="100%"
-              mx="auto"
-              sx={{
-                mt: 0,
-                mb: 1,
-                px: 0,
-              }}
-          >
-            <ProgressBar
-                currentEcts={totalMajorEcts}
-                totalEcts={60}
-                color="#CC87F8"
-                height={35}
-                headerText="Major Courses"
-                textAlign="left"
-                fontSize={16}
-                backgroundColor="#E5C3FC"
-            />
+          <Box display="flex" justifyContent="center" alignItems="center" width="100%" maxWidth="100%" mx="auto" sx={{ mt: 0, mb: 1, px: 0 }}>
+            <ProgressBar currentEcts={totalMajorEcts} totalEcts={60} color="#CC87F8" height={35} headerText="Major Courses" textAlign="left" fontSize={16} backgroundColor="#E5C3FC" />
           </Box>
 
-          {/* Scrollable Major Grid */}
           <ScrollableContainer maxHeight="300px">
             <Grid container spacing={2} mt={0}>
               <CourseGrid
                   updateEcts={updateEcts}
                   type="major"
-                  rows={8}
-                  cols={2}
+                  rows={isVertical ? 16 : 8}  // 16 rows if in portrait, 8 rows if landscape
+                  cols={isVertical ? 1 : 2}    // 1 column if in portrait, 2 columns if landscape
                   selectedFields={majorFields}
                   setSelectedFields={setMajorFields}
               />
             </Grid>
           </ScrollableContainer>
 
-          {/* Minor Section */}
-          {/* Minor Courses Progress Bar */}
-          <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              width="100%"
-              maxWidth="100%"
-              mx="auto"
-              sx={{
-                mt: 2,
-                mb: 1,
-                px: 0,
-              }}
-          >
-            <ProgressBar
-                currentEcts={totalMinorEcts}
-                totalEcts={24}
-                color="#F7C5FC"
-                height={35}
-                headerText="Minor Courses"
-                textAlign="left"
-                fontSize={16}
-                backgroundColor="#ffe7ff"
-            />
+          <Box display="flex" justifyContent="center" alignItems="center" width="100%" maxWidth="100%" mx="auto" sx={{ mt: 2, mb: 1, px: 0 }}>
+            <ProgressBar currentEcts={totalMinorEcts} totalEcts={24} color="#F7C5FC" height={35} headerText="Minor Courses" textAlign="left" fontSize={16} backgroundColor="#ffe7ff" />
           </Box>
 
-          {/* Scrollable Minor Grid */}
           <ScrollableContainer maxHeight="260px">
             <Grid container spacing={2} mt={0}>
               <CourseGrid
                   updateEcts={updateEcts}
                   type="minor"
-                  rows={6}
-                  cols={2}
+                  rows={isVertical ? 16 : 6}  // 16 rows if in portrait, 6 rows if landscape
+                  cols={isVertical ? 1 : 2}    // 1 column if in portrait, 2 columns if landscape
                   selectedFields={minorFields}
                   setSelectedFields={setMinorFields}
               />
@@ -237,30 +181,22 @@ function Master() {
           </ScrollableContainer>
 
           <Box display="flex" alignItems="center">
-            <Checkbox
-                checked={isMasterThesisChecked}
-                onChange={handleMasterThesisChange}
-            />
+            <Checkbox checked={isMasterThesisChecked} onChange={handleMasterThesisChange} />
             <Typography>Master Thesis (30 ECTS)</Typography>
           </Box>
 
           <Box display="flex" alignItems="center">
-            <Checkbox
-                checked={isOptionalCoursesChecked}
-                onChange={handleOptionalCoursesChange}
-            />
+            <Checkbox checked={isOptionalCoursesChecked} onChange={handleOptionalCoursesChange} />
             <Typography>Optional Courses (6 ECTS)</Typography>
           </Box>
 
-          {/* Add New Course Button, only visible to admins */}
           {isAdmin && (
-              <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} style={{}}>
+              <Button variant="outlined" color="secondary" onClick={() => setOpen(true)}>
                 Add New Course
               </Button>
           )}
 
           <CourseDialog open={open} onClose={() => setOpen(false)} />
-
           <NavButton navigate_to="/" label="Back to Home" />
         </Container>
       </Box>
