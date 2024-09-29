@@ -8,6 +8,8 @@ import CourseDialog from '../components/CourseDialog';
 import ProgressBar from '../components/ProgressBar';
 import ScrollableContainer from '../components/ScrollableContainer';
 import NavButton from "../components/NavButton.tsx";
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 function Master() {
   const [user, setUser] = useState<User | null>(null);
@@ -29,13 +31,40 @@ function Master() {
   const [unsavedChanges, setUnsavedChanges] = useState(false); // Track unsaved changes
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser || null);
-    });
-    return () => unsubscribe();
-  }, [auth]);
 
-  // Monitor changes to trigger unsaved state
+      if (currentUser) {
+        // Load courses and checkboxes state when component is mounted
+        const checkboxesRef = doc(db, `users/${currentUser.uid}/courses`, 'course_checkboxes');
+        const checkboxDoc = await getDoc(checkboxesRef);
+        if (checkboxDoc.exists()) {
+          const data = checkboxDoc.data();
+          setIsMasterThesisChecked(data.isMasterThesisChecked || false);
+          setIsOptionalCoursesChecked(data.isOptionalCoursesChecked || false);
+        }
+
+        // Load courses and calculate ECTS
+        const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
+        const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
+        let totalEcts = totalMajorEcts + totalMinorEcts;
+
+        if (isMasterThesisChecked) {
+          totalEcts += 30; // Add 30 ECTS for Master Thesis
+        }
+        if (isOptionalCoursesChecked) {
+          totalEcts += 6; // Add 6 ECTS for Optional Courses
+        }
+
+        updateEcts(totalEcts); // Trigger the progress bar to update
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth, majorFields, minorFields, isMasterThesisChecked, isOptionalCoursesChecked]);
+
+
+  // Monitor unsaved changes (optional, could still be used for major/minor fields)
   useEffect(() => {
     setUnsavedChanges(true);
   }, [majorFields, minorFields, isMasterThesisChecked, isOptionalCoursesChecked]);
@@ -44,7 +73,7 @@ function Master() {
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (unsavedChanges) {
-        saveCoursesHandler();
+        saveCoursesHandler(); // Save data before page unloads
         event.preventDefault();
         event.returnValue = ''; // Necessary for modern browsers
       }
@@ -61,7 +90,7 @@ function Master() {
     setTotalEcts(ects);
   };
 
-  // Single save handler for both major and minor courses
+  // Save handler for both major and minor courses (unchanged)
   const saveCoursesHandler = () => {
     const saveCourses = new SaveCourses(user, majorFields, minorFields);
 
@@ -79,6 +108,32 @@ function Master() {
       updateEcts(totalEcts); // Trigger the progress bar to update
       setUnsavedChanges(false); // Reset unsaved changes
     });
+  };
+
+  // Save only the checkboxes when they change
+  const saveCheckboxes = async (newMasterThesisState: boolean, newOptionalCoursesState: boolean) => {
+    if (user) {
+      const checkboxesRef = doc(db, `users/${user.uid}/courses`, 'course_checkboxes');
+      await setDoc(checkboxesRef, {
+        isMasterThesisChecked: newMasterThesisState,
+        isOptionalCoursesChecked: newOptionalCoursesState,
+      });
+      console.log("Checkbox states saved");
+    }
+  };
+
+// Handle Master Thesis checkbox changes
+  const handleMasterThesisChange = () => {
+    const newMasterThesisState = !isMasterThesisChecked;
+    setIsMasterThesisChecked(newMasterThesisState);
+    saveCheckboxes(newMasterThesisState, isOptionalCoursesChecked); // Only save when it changes
+  };
+
+// Handle Optional Courses checkbox changes
+  const handleOptionalCoursesChange = () => {
+    const newOptionalCoursesState = !isOptionalCoursesChecked;
+    setIsOptionalCoursesChecked(newOptionalCoursesState);
+    saveCheckboxes(isMasterThesisChecked, newOptionalCoursesState); // Only save when it changes
   };
 
   // Calculate ECTS for major and minor separately
@@ -217,7 +272,7 @@ function Master() {
             <Box display="flex" alignItems="center">
               <Checkbox
                   checked={isMasterThesisChecked}
-                  onChange={() => setIsMasterThesisChecked(!isMasterThesisChecked)}
+                  onChange={handleMasterThesisChange}
               />
               <Typography>Master Thesis (30 ECTS)</Typography>
             </Box>
@@ -225,7 +280,7 @@ function Master() {
             <Box display="flex" alignItems="center">
               <Checkbox
                   checked={isOptionalCoursesChecked}
-                  onChange={() => setIsOptionalCoursesChecked(!isOptionalCoursesChecked)}
+                  onChange={handleOptionalCoursesChange}
               />
               <Typography>Optional Courses (6 ECTS)</Typography>
             </Box>
