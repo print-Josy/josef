@@ -51,14 +51,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
               sx={{
                 position: "absolute",
                 top: "0",
-                left: textAlign === 'left' ? '10px' : '50%',  // Align text left or center
+                left: textAlign === 'left' ? '5px' : '50%',  // Align text left or center
                 transform: textAlign === 'center' ? 'translateX(-50%)' : 'none', // Only center if textAlign is 'center'
                 width: "100%",
                 display: "flex",
                 justifyContent: textAlign === 'left' ? 'space-between' : 'center',  // Align text accordingly
                 alignItems: "center",
                 height: "100%",
-                padding: '0 10px'
+                padding: '0 15px'  // Adjust padding to create space between the edge and text
               }}
           >
             {/* Left text (Header like "Major Courses") */}
@@ -78,7 +78,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                 color="textPrimary"
                 sx={{ fontWeight: 'bold', fontSize: `${fontSize}px` }}
             >
-              {`${currentEcts} ECTS of ${totalEcts}`}
+              {`${currentEcts} / ${totalEcts}`}
             </Typography>
           </Box>
         </Box>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import { User, getAuth } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 
 // Define a type for each field in selectedFields
 export interface SelectedField {
@@ -135,46 +135,4 @@ export const useCourses = (
 
   return { courses, lectures, handleCourseChange, handleEctsChange };
 };
-
-class SaveCourses {
-  user: User | null;
-  majorFields: SelectedField[];
-  minorFields: SelectedField[];
-
-  constructor(user: User | null, majorFields: SelectedField[], minorFields: SelectedField[]) {
-    this.user = user;
-    this.majorFields = majorFields;
-    this.minorFields = minorFields;
-  }
-
-  async save() {
-    if (!this.user) return;
-
-    const coursesRef = collection(db, `users/${this.user.uid}/courses`);
-
-    // Save Major Courses
-    for (let index = 0; index < this.majorFields.length; index++) {
-      const field = this.majorFields[index];
-      const courseDocId = `course_major${index}`;
-      await setDoc(doc(coursesRef, courseDocId), {
-        selectedCourse: field.selectedCourse,
-        selectedEcts: field.selectedEcts,
-      });
-    }
-
-    // Save Minor Courses
-    for (let index = 0; index < this.minorFields.length; index++) {
-      const field = this.minorFields[index];
-      const courseDocId = `course_minor${index}`;
-      await setDoc(doc(coursesRef, courseDocId), {
-        selectedCourse: field.selectedCourse,
-        selectedEcts: field.selectedEcts,
-      });
-    }
-
-    console.log("Major and Minor data updated successfully!");
-  }
-}
-
-export { SaveCourses };
 

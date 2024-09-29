@@ -1,17 +1,16 @@
 // src/components/Signup.tsx
 import { useState, useEffect } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';  // Firestore database
 
 function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');  // New state for user's name
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null); // Use FirebaseUser type
 
   const auth = getAuth();
 
@@ -39,7 +38,6 @@ function Signup() {
       // Save user to Firestore with their email and UID
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         email: userCredential.user.email,  // Save the user's email
-        username: name || email,  // Use the provided name or default to email as the username
         createdAt: new Date(),
       });
 
@@ -71,15 +69,6 @@ function Signup() {
               <Typography variant="h4" gutterBottom>Sign Up or Log In</Typography>
 
               <TextField
-                  label="Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  fullWidth
-                  margin="normal"
-                  placeholder="Optional Name"
-              />
-
-              <TextField
                   label="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -106,7 +95,7 @@ function Signup() {
               </Button>
             </>
         ) : (
-            <Typography variant="h5">Welcome, {user.email}!</Typography>
+            <Typography variant="h5">Welcome, {user?.email}!</Typography>
         )}
       </div>
   );

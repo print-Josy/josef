@@ -1,7 +1,7 @@
 // src/pages/Main.tsx
 import { useState, useEffect } from 'react';
 import { Container, Typography, Box, IconButton } from '@mui/material';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import NavButton from '../components/NavButton';
 import Signup from '../components/Signup';  // Import the Signup component
@@ -10,7 +10,7 @@ import theme from '../theme';  // Import your custom theme
 import CssBaseline from '@mui/material/CssBaseline';
 
 function Main() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null); // Use FirebaseUser type
   const auth = getAuth();
 
   // Monitor user login state
@@ -86,7 +86,16 @@ function Main() {
               </IconButton>
             </Box>
 
-            <NavButton navigate_to="/master" label="Go to Master Page" />
+            {/* Conditionally render the NavButton only if the user is logged in */}
+            {user && (
+                <NavButton navigate_to="/master" label="Go to Master Page" />
+            )}
+
+            {!user && (
+                <Typography color="error" variant="body2" mt={2}>
+                  Please sign in to access the Master Page.
+                </Typography>
+            )}
           </Container>
         </Box>
       </ThemeProvider>

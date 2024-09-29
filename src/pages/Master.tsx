@@ -1,4 +1,3 @@
-import { SaveCourses } from '../hooks/useCourses';
 import { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Box, IconButton, Button, Checkbox } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
@@ -13,6 +12,7 @@ import { db } from '../firebaseConfig';
 
 function Master() {
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false); // Admin state
   const [totalEcts, setTotalEcts] = useState(0);
   const [majorFields, setMajorFields] = useState([...Array(16)].map(() => ({
     selectedCourse: '',
@@ -28,7 +28,6 @@ function Master() {
   const auth = getAuth();
   const [isMasterThesisChecked, setIsMasterThesisChecked] = useState(false);
   const [isOptionalCoursesChecked, setIsOptionalCoursesChecked] = useState(false);
-  const [unsavedChanges, setUnsavedChanges] = useState(false); // Track unsaved changes
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -36,6 +35,12 @@ function Master() {
 
       if (currentUser) {
         // Load courses and checkboxes state when component is mounted
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setIsAdmin(userData?.admin === true); // Set admin status
+        }
         const checkboxesRef = doc(db, `users/${currentUser.uid}/courses`, 'course_checkboxes');
         const checkboxDoc = await getDoc(checkboxesRef);
         if (checkboxDoc.exists()) {
@@ -64,24 +69,6 @@ function Master() {
   }, [auth, majorFields, minorFields, isMasterThesisChecked, isOptionalCoursesChecked]);
 
 
-  // Monitor unsaved changes (optional, could still be used for major/minor fields)
-  useEffect(() => {
-    setUnsavedChanges(true);
-  }, [majorFields, minorFields, isMasterThesisChecked, isOptionalCoursesChecked]);
-
-  // Auto-save handler before leaving the page
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (unsavedChanges) {
-        saveCoursesHandler(); // Save data before page unloads
-        event.preventDefault();
-        event.returnValue = ''; // Necessary for modern browsers
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [unsavedChanges]);
-
   const handleSignOut = () => {
     signOut(auth).then(() => window.location.href = '/');
   };
@@ -90,25 +77,6 @@ function Master() {
     setTotalEcts(ects);
   };
 
-  // Save handler for both major and minor courses (unchanged)
-  const saveCoursesHandler = () => {
-    const saveCourses = new SaveCourses(user, majorFields, minorFields);
-
-    saveCourses.save().then(() => {
-      const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
-      const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
-      let totalEcts = totalMajorEcts + totalMinorEcts;
-      if (isMasterThesisChecked) {
-        totalEcts += 30; // Add 30 ECTS for Master Thesis
-      }
-      if (isOptionalCoursesChecked) {
-        totalEcts += 6; // Add 6 ECTS for Optional Courses
-      }
-
-      updateEcts(totalEcts); // Trigger the progress bar to update
-      setUnsavedChanges(false); // Reset unsaved changes
-    });
-  };
 
   // Save only the checkboxes when they change
   const saveCheckboxes = async (newMasterThesisState: boolean, newOptionalCoursesState: boolean) => {
@@ -182,7 +150,7 @@ function Master() {
                 height={40}
                 textAlign="center"
                 fontSize={20}
-                backgroundColor="#e0e0e0"
+                backgroundColor="#c1bcf4"
             />
           </Box>
 
@@ -250,7 +218,7 @@ function Master() {
                 headerText="Minor Courses"
                 textAlign="left"
                 fontSize={16}
-                backgroundColor="#f0f0f0"
+                backgroundColor="#ffe7ff"
             />
           </Box>
 
@@ -268,40 +236,32 @@ function Master() {
             </Grid>
           </ScrollableContainer>
 
-          <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
-            <Box display="flex" alignItems="center">
-              <Checkbox
-                  checked={isMasterThesisChecked}
-                  onChange={handleMasterThesisChange}
-              />
-              <Typography>Master Thesis (30 ECTS)</Typography>
-            </Box>
-
-            <Box display="flex" alignItems="center">
-              <Checkbox
-                  checked={isOptionalCoursesChecked}
-                  onChange={handleOptionalCoursesChange}
-              />
-              <Typography>Optional Courses (6 ECTS)</Typography>
-            </Box>
-
-            {/* Update Data Button */}
-            <Button
-                variant="contained"
-                color={unsavedChanges ? "warning" : "primary"} // Change color based on unsaved changes
-                onClick={saveCoursesHandler}
-            >
-              {unsavedChanges ? "Save Changes" : "Update Data"}
-            </Button>
+          <Box display="flex" alignItems="center">
+            <Checkbox
+                checked={isMasterThesisChecked}
+                onChange={handleMasterThesisChange}
+            />
+            <Typography>Master Thesis (30 ECTS)</Typography>
           </Box>
 
-          <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} style={{}}>
-            Add New Course
-          </Button>
+          <Box display="flex" alignItems="center">
+            <Checkbox
+                checked={isOptionalCoursesChecked}
+                onChange={handleOptionalCoursesChange}
+            />
+            <Typography>Optional Courses (6 ECTS)</Typography>
+          </Box>
+
+          {/* Add New Course Button, only visible to admins */}
+          {isAdmin && (
+              <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} style={{}}>
+                Add New Course
+              </Button>
+          )}
 
           <CourseDialog open={open} onClose={() => setOpen(false)} />
 
-          <NavButton navigate_to="/master" label="Back to Home" />
+          <NavButton navigate_to="/" label="Back to Home" />
         </Container>
       </Box>
   );
