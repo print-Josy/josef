@@ -1,5 +1,6 @@
 import React from 'react';
-import { Grid, MenuItem, TextField } from '@mui/material';
+import { Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { JSX } from 'react/jsx-runtime';
 
 interface Course {
   id: string;
@@ -15,15 +16,14 @@ interface CourseInputDropdownProps {
   onCourseChange: (course: string) => void;
   onEctsChange: (ects: number) => void;
 
-  // New optional props for styling and spacing
-  courseFieldWidth?: number;     // Width for the course dropdown
-  ectsFieldWidth?: number;       // Width for the ECTS dropdown
-  courseFieldPadding?: string;   // Padding for the course dropdown
-  ectsFieldPadding?: string;     // Padding for the ECTS dropdown
-  spacingBetweenFields?: number; // Spacing between the two fields
-  fieldHeight?: number;          // Height of the input fields
-  labelFontSize?: string;        // Font size of the labels
-  inputFontSize?: string;        // Font size of the input text
+  courseFieldWidth?: number;
+  ectsFieldWidth?: number;
+  courseFieldPadding?: string;
+  ectsFieldPadding?: string;
+  spacingBetweenFields?: number;
+  fieldHeight?: number;
+  labelFontSize?: string;
+  inputFontSize?: string;
 }
 
 const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
@@ -33,15 +33,55 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    selectedEcts,
                                                                    onCourseChange,
                                                                    onEctsChange,
-                                                                   courseFieldWidth = 9, // Default width (9 of 12 grid columns)
-                                                                   ectsFieldWidth = 3,   // Default width (3 of 12 grid columns)
-                                                                   courseFieldPadding = '0px', // Default padding
-                                                                   ectsFieldPadding = '2px',    // Default padding
-                                                                   spacingBetweenFields = 0,    // Default spacing
-                                                                   fieldHeight = 30,            // Default field height in px
-                                                                   labelFontSize = '13px',      // Default label font size
-                                                                   inputFontSize = '14px',      // Default input font size
+                                                                   courseFieldWidth = 9,
+                                                                   ectsFieldWidth = 3,
+                                                                   courseFieldPadding = '0px',
+                                                                   ectsFieldPadding = '2px',
+                                                                   spacingBetweenFields = 0,
+                                                                   fieldHeight = 30,
+                                                                   labelFontSize = '13px',
+                                                                   inputFontSize = '14px',
                                                                  }) => {
+  // Sort courses alphabetically
+  const sortedCourses = [...courses].sort((a, b) => a.name.localeCompare(b.name));
+
+  // Helper function to create separators for new starting letters
+  const renderCourseOptions = () => {
+    let lastInitial = ''; // Track the last starting letter
+    const options: JSX.Element[] = []; // Create an array for options
+
+    sortedCourses.forEach((course) => {
+      const initial = course.name.charAt(0).toUpperCase();
+      const isNewLetter = initial !== lastInitial; // Check if a new letter section starts
+      lastInitial = initial;
+
+      if (isNewLetter) {
+        options.push(
+            <Typography
+                key={`separator-${initial}`}
+                sx={{
+                  fontWeight: 'bold',
+                  color: '#555',
+                  fontSize: '14px',
+                  padding: '0px 0',
+                  paddingLeft: '15px',
+                }}
+            >
+              {initial}
+            </Typography>
+        );
+      }
+
+      options.push(
+          <MenuItem key={course.id} value={course.name}>
+            {course.name}
+          </MenuItem>
+      );
+    });
+
+    return options; // Return the array instead of fragments
+  };
+
   return (
       <Grid container spacing={spacingBetweenFields} alignItems="center">
         {/* Course Name Dropdown */}
@@ -56,24 +96,30 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               size="small"
               InputProps={{
                 style: {
-                  height: `${fieldHeight}px`,      // Adjust field height
-                  fontSize: inputFontSize,         // Adjust input text font size
+                  height: `${fieldHeight}px`,
+                  fontSize: inputFontSize,
                 },
               }}
               InputLabelProps={{
                 style: {
-                  fontSize: labelFontSize,         // Adjust label font size
+                  fontSize: labelFontSize,
+                },
+              }}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 350, // Limit the dropdown height to enable scrolling
+                      overflowY: 'auto', // Scroll when there are too many options
+                    },
+                  },
                 },
               }}
           >
             <MenuItem value="">
               <em>None</em> {/* This option clears the course */}
             </MenuItem>
-            {courses.map((course) => (
-                <MenuItem key={course.id} value={course.name}>
-                  {course.name}
-                </MenuItem>
-            ))}
+            {renderCourseOptions()}
           </TextField>
         </Grid>
 
@@ -89,13 +135,13 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               size="small"
               InputProps={{
                 style: {
-                  height: `${fieldHeight}px`,      // Adjust field height
-                  fontSize: inputFontSize,         // Adjust input text font size
+                  height: `${fieldHeight}px`,
+                  fontSize: inputFontSize,
                 },
               }}
               InputLabelProps={{
                 style: {
-                  fontSize: labelFontSize,         // Adjust label font size
+                  fontSize: labelFontSize,
                 },
               }}
           >
