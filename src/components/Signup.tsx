@@ -1,7 +1,6 @@
-// src/components/Signup.tsx
 import { useState, useEffect } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, sendEmailVerification, User as FirebaseUser } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';  // Firestore database
 
@@ -11,18 +10,22 @@ function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<FirebaseUser | null>(null); // Use FirebaseUser type
+  const [emailVerified, setEmailVerified] = useState(false);
 
   const auth = getAuth();
 
   // Monitor authentication state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        await currentUser.reload(); // Reload user to ensure we have updated info (email verification)
         setUser(currentUser);
-        setIsAuthenticated(true);
+        setIsAuthenticated(currentUser.emailVerified); // Only set authenticated if email is verified
+        setEmailVerified(currentUser.emailVerified);   // Track email verification status
       } else {
         setIsAuthenticated(false);
         setUser(null);
+        setEmailVerified(false);
       }
     });
     return () => unsubscribe(); // Cleanup the listener on unmount
@@ -31,9 +34,12 @@ function Signup() {
   const handleSignup = async () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      setIsAuthenticated(true);
       setError(null);
       setUser(userCredential.user);
+
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+      setError('Verification email sent. Please verify your email before logging in.');
 
       // Save user to Firestore with their email and UID
       await setDoc(doc(db, 'users', userCredential.user.uid), {
@@ -51,11 +57,17 @@ function Signup() {
   const handleLogin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      setIsAuthenticated(true);
-      setError(null);
-      setUser(userCredential.user);
+      await userCredential.user.reload(); // Reload user to check email verification
 
-      console.log('User logged in with email:', userCredential.user.email);
+      if (userCredential.user.emailVerified) {
+        setIsAuthenticated(true);
+        setError(null);
+        setUser(userCredential.user);
+        setEmailVerified(true);
+        console.log('User logged in with email:', userCredential.user.email);
+      } else {
+        setError('Please verify your email before logging in.');
+      }
     } catch (error) {
       setError('Error logging in. Please try again.');
       console.error(error);
@@ -95,7 +107,14 @@ function Signup() {
               </Button>
             </>
         ) : (
-            <Typography variant="h5">Welcome, {user?.email}!</Typography>
+            <>
+              <Typography variant="h5">Welcome, {user?.email}!</Typography>
+              {!emailVerified && (
+                  <Typography color="error" variant="body2">
+                    Please verify your email to access all features.
+                  </Typography>
+              )}
+            </>
         )}
       </div>
   );
