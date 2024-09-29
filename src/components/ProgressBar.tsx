@@ -32,10 +32,15 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           mt={0}
           width="100%"
           maxWidth="100%"
+          sx={{
+            ...(progress >= 100 && {
+              border: '4px solid rgba(255, 223, 0, 0.6)',  // Light transparent yellow border
+              animation: 'pulse 1.5s infinite',
+            }),
+            borderRadius: '4px', // Optional: to give the border a smooth corner
+          }}
       >
-        {/* Wrapping both the progress bar and text inside a relative container */}
         <Box sx={{ position: "relative", width: "100%" }}>
-          {/* Progress bar */}
           <LinearProgress
               variant="determinate"
               value={progress}
@@ -61,7 +66,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                 padding: '0 15px'  // Adjust padding to create space between the edge and text
               }}
           >
-            {/* Left text (Header like "Major Courses") */}
             {headerText && textAlign === 'left' && (
                 <Typography
                     variant="body1"
@@ -72,7 +76,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                 </Typography>
             )}
 
-            {/* Right or centered ECTS text */}
             <Typography
                 variant="body1"
                 color="textPrimary"
@@ -82,6 +85,23 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
             </Typography>
           </Box>
         </Box>
+
+        {/* CSS for pulsing animation */}
+        <style>
+          {`
+          @keyframes pulse {
+            0% {
+              box-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
+            }
+            50% {
+              box-shadow: 0 0 15px rgba(255, 223, 0, 0.5);
+            }
+            100% {
+              box-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
+            }
+          }
+        `}
+        </style>
       </Box>
   );
 };

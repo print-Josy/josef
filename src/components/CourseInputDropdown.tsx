@@ -8,12 +8,22 @@ interface Course {
 }
 
 interface CourseInputDropdownProps {
-  courses: Course[];  // Use the proper Course interface here
+  courses: Course[];
   ectsOptions: number[];
   selectedCourse: string;
   selectedEcts: number;
   onCourseChange: (course: string) => void;
   onEctsChange: (ects: number) => void;
+
+  // New optional props for styling and spacing
+  courseFieldWidth?: number;     // Width for the course dropdown
+  ectsFieldWidth?: number;       // Width for the ECTS dropdown
+  courseFieldPadding?: string;   // Padding for the course dropdown
+  ectsFieldPadding?: string;     // Padding for the ECTS dropdown
+  spacingBetweenFields?: number; // Spacing between the two fields
+  fieldHeight?: number;          // Height of the input fields
+  labelFontSize?: string;        // Font size of the labels
+  inputFontSize?: string;        // Font size of the input text
 }
 
 const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
@@ -23,11 +33,19 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    selectedEcts,
                                                                    onCourseChange,
                                                                    onEctsChange,
+                                                                   courseFieldWidth = 9, // Default width (9 of 12 grid columns)
+                                                                   ectsFieldWidth = 3,   // Default width (3 of 12 grid columns)
+                                                                   courseFieldPadding = '0px', // Default padding
+                                                                   ectsFieldPadding = '2px',    // Default padding
+                                                                   spacingBetweenFields = 0,    // Default spacing
+                                                                   fieldHeight = 30,            // Default field height in px
+                                                                   labelFontSize = '13px',      // Default label font size
+                                                                   inputFontSize = '14px',      // Default input font size
                                                                  }) => {
   return (
-      <Grid container spacing={1} alignItems="center">
-        {/* Course Name Dropdown (75% width) */}
-        <Grid item xs={9} style={{ paddingLeft: '20px' }}>
+      <Grid container spacing={spacingBetweenFields} alignItems="center">
+        {/* Course Name Dropdown */}
+        <Grid item xs={courseFieldWidth} style={{ paddingLeft: courseFieldPadding }}>
           <TextField
               select
               label="Course"
@@ -36,17 +54,31 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               fullWidth
               variant="outlined"
               size="small"
+              InputProps={{
+                style: {
+                  height: `${fieldHeight}px`,      // Adjust field height
+                  fontSize: inputFontSize,         // Adjust input text font size
+                },
+              }}
+              InputLabelProps={{
+                style: {
+                  fontSize: labelFontSize,         // Adjust label font size
+                },
+              }}
           >
+            <MenuItem value="">
+              <em>None</em> {/* This option clears the course */}
+            </MenuItem>
             {courses.map((course) => (
                 <MenuItem key={course.id} value={course.name}>
-                  {course.name} {/* Display LECTURES names */}
+                  {course.name}
                 </MenuItem>
             ))}
           </TextField>
         </Grid>
 
-        {/* ECTS Dropdown (25% width) */}
-        <Grid item xs={3} style={{ paddingLeft: '2px' }}>
+        {/* ECTS Dropdown */}
+        <Grid item xs={ectsFieldWidth} style={{ paddingLeft: ectsFieldPadding }}>
           <TextField
               select
               label="ECTS"
@@ -55,6 +87,17 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               fullWidth
               variant="outlined"
               size="small"
+              InputProps={{
+                style: {
+                  height: `${fieldHeight}px`,      // Adjust field height
+                  fontSize: inputFontSize,         // Adjust input text font size
+                },
+              }}
+              InputLabelProps={{
+                style: {
+                  fontSize: labelFontSize,         // Adjust label font size
+                },
+              }}
           >
             {ectsOptions.map((ects, index) => (
                 <MenuItem key={index} value={ects}>
