@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Grid, MenuItem, TextField, Typography, Box } from '@mui/material';
 import { JSX } from 'react/jsx-runtime';
 
 interface Course {
@@ -57,23 +57,46 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
 
       if (isNewLetter) {
         options.push(
-            <Typography
+            <Box
                 key={`separator-${initial}`}
                 sx={{
-                  fontWeight: 'bold',
-                  color: '#555',
-                  fontSize: '14px',
-                  padding: '0px 0',
-                  paddingLeft: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
             >
-              {initial}
-            </Typography>
+              <Box
+                  sx={{
+                    flex: 1,
+                    borderBottom: '0.5px solid lightgrey',  // Thin grey line on the left
+                  }}
+              />
+              <Typography
+                  sx={{
+                    fontWeight: 'bold',
+                    color: '#555',
+                    fontSize: '12px',
+                    padding: '0 12px',  // Padding between the letter and the lines
+                  }}
+              >
+                {initial}
+              </Typography>
+              <Box
+                  sx={{
+                    flex: 1,
+                    borderBottom: '0.5px solid lightgrey',  // Thin grey line on the right
+                  }}
+              />
+            </Box>
         );
       }
 
       options.push(
-          <MenuItem key={course.id} value={course.name}>
+          <MenuItem key={course.id} value={course.name}
+              sx={{
+                fontSize: '12px',
+              }}
+          >
             {course.name}
           </MenuItem>
       );
