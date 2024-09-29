@@ -1,6 +1,6 @@
 import { SaveCourses } from '../hooks/useCourses';
 import { useState, useEffect } from 'react';
-import {Container, Typography, Grid, Box, IconButton, Button, Checkbox} from '@mui/material';
+import { Container, Typography, Grid, Box, IconButton, Button, Checkbox } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseGrid from '../components/CourseGrid';
@@ -26,7 +26,7 @@ function Master() {
   const auth = getAuth();
   const [isMasterThesisChecked, setIsMasterThesisChecked] = useState(false);
   const [isOptionalCoursesChecked, setIsOptionalCoursesChecked] = useState(false);
-
+  const [unsavedChanges, setUnsavedChanges] = useState(false); // Track unsaved changes
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -34,6 +34,24 @@ function Master() {
     });
     return () => unsubscribe();
   }, [auth]);
+
+  // Monitor changes to trigger unsaved state
+  useEffect(() => {
+    setUnsavedChanges(true);
+  }, [majorFields, minorFields, isMasterThesisChecked, isOptionalCoursesChecked]);
+
+  // Auto-save handler before leaving the page
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (unsavedChanges) {
+        saveCoursesHandler();
+        event.preventDefault();
+        event.returnValue = ''; // Necessary for modern browsers
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [unsavedChanges]);
 
   const handleSignOut = () => {
     signOut(auth).then(() => window.location.href = '/');
@@ -48,19 +66,18 @@ function Master() {
     const saveCourses = new SaveCourses(user, majorFields, minorFields);
 
     saveCourses.save().then(() => {
-      // After saving, recalculate the total ECTS and update the progress bar
       const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
       const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
-      // Add ECTS from checkboxes if checked
       let totalEcts = totalMajorEcts + totalMinorEcts;
       if (isMasterThesisChecked) {
-        totalEcts += 30;  // Add 30 ECTS for Master Thesis
+        totalEcts += 30; // Add 30 ECTS for Master Thesis
       }
       if (isOptionalCoursesChecked) {
-        totalEcts += 6;  // Add 6 ECTS for Optional Courses
+        totalEcts += 6; // Add 6 ECTS for Optional Courses
       }
 
-      updateEcts(totalEcts);  // This will trigger the progress bar to update
+      updateEcts(totalEcts); // Trigger the progress bar to update
+      setUnsavedChanges(false); // Reset unsaved changes
     });
   };
 
@@ -107,13 +124,12 @@ function Master() {
                 currentEcts={totalEcts}
                 totalEcts={120}
                 color="#7B80F7"
-                height={30}
-                textAlign="center"  // Center text for total
-                fontSize={18}
-                backgroundColor="#e0e0e0" // Background for unfilled part
+                height={40}
+                textAlign="center"
+                fontSize={20}
+                backgroundColor="#e0e0e0"
             />
           </Box>
-
 
           {/* Major Section */}
           {/* Major Courses Progress Bar */}
@@ -136,9 +152,9 @@ function Master() {
                 color="#CC87F8"
                 height={35}
                 headerText="Major Courses"
-                textAlign="left"  // Left-align text for Major
+                textAlign="left"
                 fontSize={16}
-                backgroundColor="#E5C3FC" // Light background for unfilled part
+                backgroundColor="#E5C3FC"
             />
           </Box>
 
@@ -150,12 +166,11 @@ function Master() {
                   type="major"
                   rows={8}
                   cols={2}
-                  selectedFields={majorFields}  // Pass major courses
-                  setSelectedFields={setMajorFields}  // Update major courses
+                  selectedFields={majorFields}
+                  setSelectedFields={setMajorFields}
               />
             </Grid>
           </ScrollableContainer>
-
 
           {/* Minor Section */}
           {/* Minor Courses Progress Bar */}
@@ -178,9 +193,9 @@ function Master() {
                 color="#F7C5FC"
                 height={35}
                 headerText="Minor Courses"
-                textAlign="left"  // Left-align text for Minor
+                textAlign="left"
                 fontSize={16}
-                backgroundColor="#f0f0f0" // Light background for unfilled part
+                backgroundColor="#f0f0f0"
             />
           </Box>
 
@@ -192,12 +207,11 @@ function Master() {
                   type="minor"
                   rows={6}
                   cols={2}
-                  selectedFields={minorFields}  // Pass minor courses
-                  setSelectedFields={setMinorFields}  // Update minor courses
+                  selectedFields={minorFields}
+                  setSelectedFields={setMinorFields}
               />
             </Grid>
           </ScrollableContainer>
-
 
           <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
             <Box display="flex" alignItems="center">
@@ -217,12 +231,16 @@ function Master() {
             </Box>
 
             {/* Update Data Button */}
-            <Button variant="contained" color="primary" onClick={saveCoursesHandler}>
-              Update Data
+            <Button
+                variant="contained"
+                color={unsavedChanges ? "warning" : "primary"} // Change color based on unsaved changes
+                onClick={saveCoursesHandler}
+            >
+              {unsavedChanges ? "Save Changes" : "Update Data"}
             </Button>
           </Box>
 
-          <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} style={{ }}>
+          <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} style={{}}>
             Add New Course
           </Button>
 

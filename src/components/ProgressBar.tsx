@@ -22,7 +22,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                                                    fontSize = 16,
                                                    backgroundColor = '#ccc'
                                                  }) => {
-  const progress = (currentEcts / totalEcts) * 100; // Calculate the percentage of the bar
+  const progress = Math.min((currentEcts / totalEcts) * 100, 100);
 
   return (
       <Box
