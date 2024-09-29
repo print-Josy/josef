@@ -43,7 +43,7 @@ function Master() {
     setTotalEcts(ects);
   };
 
-// Single save handler for both major and minor courses
+  // Single save handler for both major and minor courses
   const saveCoursesHandler = () => {
     const saveCourses = new SaveCourses(user, majorFields, minorFields);
 
@@ -63,6 +63,10 @@ function Master() {
       updateEcts(totalEcts);  // This will trigger the progress bar to update
     });
   };
+
+  // Calculate ECTS for major and minor separately
+  const totalMajorEcts = majorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
+  const totalMinorEcts = minorFields.reduce((sum, field) => sum + field.selectedEcts, 0);
 
   return (
       <Box
@@ -85,12 +89,57 @@ function Master() {
             </IconButton>
           </Box>
 
-          {/* Progress Bar */}
-          <ProgressBar currentEcts={totalEcts} totalEcts={120} />
+          {/* Total ECTS Progress Bar */}
+          <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              width="100%"
+              maxWidth="100%"
+              mx="auto"
+              sx={{
+                mt: 0,
+                mb: 4,
+                px: 0,
+              }}
+          >
+            <ProgressBar
+                currentEcts={totalEcts}
+                totalEcts={120}
+                color="#7B80F7"
+                height={30}
+                textAlign="center"  // Center text for total
+                fontSize={18}
+                backgroundColor="#e0e0e0" // Background for unfilled part
+            />
+          </Box>
+
 
           {/* Major Section */}
-          <Box bgcolor="purple" color="white" padding="10px" mb={1}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}> Major Courses (60 ECTS)</Typography>
+          {/* Major Courses Progress Bar */}
+          <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              width="100%"
+              maxWidth="100%"
+              mx="auto"
+              sx={{
+                mt: 0,
+                mb: 1,
+                px: 0,
+              }}
+          >
+            <ProgressBar
+                currentEcts={totalMajorEcts}
+                totalEcts={60}
+                color="#CC87F8"
+                height={35}
+                headerText="Major Courses"
+                textAlign="left"  // Left-align text for Major
+                fontSize={16}
+                backgroundColor="#E5C3FC" // Light background for unfilled part
+            />
           </Box>
 
           {/* Scrollable Major Grid */}
@@ -107,11 +156,32 @@ function Master() {
             </Grid>
           </ScrollableContainer>
 
+
           {/* Minor Section */}
-          <Box bgcolor="#F7C5FC" color="black" padding="8px" mt={3} mb={1}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              Minor Courses (24 ECTS)
-            </Typography>
+          {/* Minor Courses Progress Bar */}
+          <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              width="100%"
+              maxWidth="100%"
+              mx="auto"
+              sx={{
+                mt: 2,
+                mb: 1,
+                px: 0,
+              }}
+          >
+            <ProgressBar
+                currentEcts={totalMinorEcts}
+                totalEcts={24}
+                color="#F7C5FC"
+                height={35}
+                headerText="Minor Courses"
+                textAlign="left"  // Left-align text for Minor
+                fontSize={16}
+                backgroundColor="#f0f0f0" // Light background for unfilled part
+            />
           </Box>
 
           {/* Scrollable Minor Grid */}
@@ -127,6 +197,7 @@ function Master() {
               />
             </Grid>
           </ScrollableContainer>
+
 
           <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
             <Box display="flex" alignItems="center">
@@ -150,8 +221,6 @@ function Master() {
               Update Data
             </Button>
           </Box>
-
-          {/*<Typography variant="h6" mt={2}>Total ECTS: {totalEcts}</Typography> */}
 
           <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} style={{ }}>
             Add New Course

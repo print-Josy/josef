@@ -1,25 +1,87 @@
-// src/components/ProgressBar.tsx
 import React from 'react';
 import { Box, LinearProgress, Typography } from '@mui/material';
 
 interface ProgressBarProps {
-  currentEcts: number; // The current ECTS accumulated
-  totalEcts: number;   // The maximum ECTS (120 in this case)
+  currentEcts: number;
+  totalEcts: number;
+  color?: string;
+  height?: number;
+  headerText?: string;          // Optional header text (e.g., "Major Courses")
+  textAlign?: 'left' | 'center'; // Alignment of the text
+  fontSize?: number;            // Optional font size for the text
+  backgroundColor?: string;     // Background color for the unfilled bar
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ currentEcts, totalEcts }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+                                                   currentEcts,
+                                                   totalEcts,
+                                                   color = 'primary',
+                                                   height = 20,
+                                                   headerText = '',
+                                                   textAlign = 'center',
+                                                   fontSize = 16,
+                                                   backgroundColor = '#ccc'
+                                                 }) => {
   const progress = (currentEcts / totalEcts) * 100; // Calculate the percentage of the bar
 
   return (
-      <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
-        {/* Progress bar */}
-        <Typography variant="h5" color="secondary">{`${currentEcts} ECTS of ${totalEcts}`}</Typography>
+      <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          mt={0}
+          width="100%"
+          maxWidth="100%"
+      >
+        {/* Wrapping both the progress bar and text inside a relative container */}
+        <Box sx={{ position: "relative", width: "100%" }}>
+          {/* Progress bar */}
+          <LinearProgress
+              variant="determinate"
+              value={progress}
+              style={{ height: `${height}px`, width: '100%' }}
+              sx={{
+                '& .MuiLinearProgress-bar': { backgroundColor: color },
+                backgroundColor: backgroundColor  // Set background color for the unfilled bar
+              }}
+          />
 
-        <Box width="100%" maxWidth="600px" mb={1}>
-          <LinearProgress variant="determinate" value={progress} style={{ height: '20px', backgroundColor: '#ccc' }} />
+          {/* Text inside the bar */}
+          <Box
+              sx={{
+                position: "absolute",
+                top: "0",
+                left: textAlign === 'left' ? '10px' : '50%',  // Align text left or center
+                transform: textAlign === 'center' ? 'translateX(-50%)' : 'none', // Only center if textAlign is 'center'
+                width: "100%",
+                display: "flex",
+                justifyContent: textAlign === 'left' ? 'space-between' : 'center',  // Align text accordingly
+                alignItems: "center",
+                height: "100%",
+                padding: '0 10px'
+              }}
+          >
+            {/* Left text (Header like "Major Courses") */}
+            {headerText && textAlign === 'left' && (
+                <Typography
+                    variant="body1"
+                    color="textPrimary"
+                    sx={{ fontWeight: 'bold', fontSize: `${fontSize}px` }}
+                >
+                  {headerText}
+                </Typography>
+            )}
+
+            {/* Right or centered ECTS text */}
+            <Typography
+                variant="body1"
+                color="textPrimary"
+                sx={{ fontWeight: 'bold', fontSize: `${fontSize}px` }}
+            >
+              {`${currentEcts} ECTS of ${totalEcts}`}
+            </Typography>
+          </Box>
         </Box>
-
-
       </Box>
   );
 };
