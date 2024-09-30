@@ -44,10 +44,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           <LinearProgress
               variant="determinate"
               value={progress}
-              style={{ height: `${height}px`, width: '100%' }}
+              style={{ height: `${height}px`, width: '100%', borderRadius: '7px',}}
               sx={{
                 '& .MuiLinearProgress-bar': { backgroundColor: color },
-                backgroundColor: backgroundColor  // Set background color for the unfilled bar
+                backgroundColor: backgroundColor// Set background color for the unfilled bar
               }}
           />
 

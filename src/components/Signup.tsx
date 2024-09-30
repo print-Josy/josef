@@ -1,17 +1,16 @@
+// src/components/Signup.tsx
 import { useState, useEffect } from 'react';
-import { TextField, Button, Typography } from '@mui/material';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, sendEmailVerification, User as FirebaseUser } from 'firebase/auth';
+import { TextField, Button, Typography, Box } from '@mui/material'; // Add Box here
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';  // Firestore database
+import NavButton from './NavButton';  // Import NavButton
 
 function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null); // Use FirebaseUser type
-  const [emailVerified, setEmailVerified] = useState(false);
-
   const auth = getAuth();
 
   // Monitor authentication state
@@ -19,13 +18,9 @@ function Signup() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         await currentUser.reload(); // Reload user to ensure we have updated info (email verification)
-        setUser(currentUser);
         setIsAuthenticated(currentUser.emailVerified); // Only set authenticated if email is verified
-        setEmailVerified(currentUser.emailVerified);   // Track email verification status
       } else {
         setIsAuthenticated(false);
-        setUser(null);
-        setEmailVerified(false);
       }
     });
     return () => unsubscribe(); // Cleanup the listener on unmount
@@ -35,7 +30,6 @@ function Signup() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       setError(null);
-      setUser(userCredential.user);
 
       // Send email verification
       await sendEmailVerification(userCredential.user);
@@ -62,8 +56,6 @@ function Signup() {
       if (userCredential.user.emailVerified) {
         setIsAuthenticated(true);
         setError(null);
-        setUser(userCredential.user);
-        setEmailVerified(true);
         console.log('User logged in with email:', userCredential.user.email);
       } else {
         setError('Please verify your email before logging in.');
@@ -78,7 +70,6 @@ function Signup() {
       <div>
         {!isAuthenticated ? (
             <>
-              <Typography variant="h4" gutterBottom>Sign Up or Log In</Typography>
 
               <TextField
                   label="Email"
@@ -108,12 +99,16 @@ function Signup() {
             </>
         ) : (
             <>
-              <Typography variant="h5">Welcome, {user?.email}!</Typography>
-              {!emailVerified && (
-                  <Typography color="error" variant="body2">
-                    Please verify your email to access all features.
-                  </Typography>
-              )}
+              <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: '24px', mb: 2 }}>WELCOME</Typography>
+
+              {/* Buttons in a column layout */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', mt: 3, mb: 2, alignItems: 'center'}}>
+                <NavButton navigate_to="/master" label="ECTS-Tracker" />
+                <NavButton navigate_to="#" label="Bachelor Page" />
+                <NavButton navigate_to="#" label="Other Projects" />
+                <NavButton navigate_to="#" label="University" />
+              </Box>
+
             </>
         )}
       </div>

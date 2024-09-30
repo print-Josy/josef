@@ -141,12 +141,12 @@ function Master() {
               width="100%"
               maxWidth="100%"
               mx="auto"
-              sx={{ mt: 0, mb: 4, px: 0 }}
+              sx={{ mt: 0, mb: 3, px: 0 }}
           >
-            <ProgressBar currentEcts={totalEcts} totalEcts={120} color="#7B80F7" height={40} textAlign="center" fontSize={20} backgroundColor="#c1bcf4" />
+            <ProgressBar currentEcts={totalEcts} totalEcts={120} color="#7B80F7" height={35} textAlign="center" fontSize={18} backgroundColor="#c1bcf4" />
           </Box>
 
-          <Box display="flex" justifyContent="center" alignItems="center" width="100%" maxWidth="100%" mx="auto" sx={{ mt: 0, mb: 1, px: 0 }}>
+          <Box display="flex" justifyContent="center" alignItems="center" width="100%" maxWidth="100%" mx="auto" sx={{ mt: 0, mb: 0.5, px: 0 }}>
             <ProgressBar currentEcts={totalMajorEcts} totalEcts={60} color="#CC87F8" height={35} headerText="Major Courses" textAlign="left" fontSize={16} backgroundColor="#E5C3FC" />
           </Box>
 
@@ -163,7 +163,7 @@ function Master() {
             </Grid>
           </ScrollableContainer>
 
-          <Box display="flex" justifyContent="center" alignItems="center" width="100%" maxWidth="100%" mx="auto" sx={{ mt: 2, mb: 1, px: 0 }}>
+          <Box display="flex" justifyContent="center" alignItems="center" width="100%" maxWidth="100%" mx="auto" sx={{ mt: 2, mb: 0.5, px: 0 }}>
             <ProgressBar currentEcts={totalMinorEcts} totalEcts={24} color="#F7C5FC" height={35} headerText="Minor Courses" textAlign="left" fontSize={16} backgroundColor="#ffe7ff" />
           </Box>
 

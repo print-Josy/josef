@@ -1,9 +1,7 @@
-// src/pages/Main.tsx
 import { useState, useEffect } from 'react';
 import { Container, Typography, Box, IconButton } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import NavButton from '../components/NavButton';
 import Signup from '../components/Signup';  // Import the Signup component
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';  // Import your custom theme
@@ -31,13 +29,12 @@ function Main() {
     });
   };
 
-  // Apply custom body styles when this component loads
   useEffect(() => {
     document.body.style.margin = '0';
     document.body.style.padding = '0';
     document.body.style.width = '100%';
     document.body.style.height = '100%';
-    document.body.style.display = 'block';  // Ensure the body acts as a block element
+    document.body.style.display = 'block';
 
     return () => {
       document.body.style.margin = '';
@@ -53,7 +50,7 @@ function Main() {
         <CssBaseline /> {/* Apply baseline styling */}
         <Box
             sx={{
-              backgroundImage: `url("https://firebasestorage.googleapis.com/v0/b/josef-website.appspot.com/o/background%2Fcs24.webp?alt=media&token=77356202-96fe-40d7-bc34-9c6611531b75")`,
+              backgroundImage: `url("https://firebasestorage.googleapis.com/v0/b/josef-website.appspot.com/o/background%2Fmain_background.webp?alt=media&token=3e814c18-5236-4613-8397-f078f472b1ae")`,
               backgroundSize: 'cover',
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
@@ -67,35 +64,24 @@ function Main() {
           <Container
               sx={{
                 backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                padding: '30px',
-                borderRadius: '10px',
+                padding: '10px',
+                borderRadius: '20px',
                 maxWidth: '600px',
                 textAlign: 'center',
+                width: '50%',
+                paddingTop: '20px',
               }}
           >
             <Signup />
-            <Typography variant="h3" gutterBottom>
-              Welcome to the ECTS Tracker
-            </Typography>
 
             {/* Account Icon */}
             <Box display="flex" justifyContent="center" alignItems="center">
               <IconButton onClick={handleSignOut} color="inherit">
                 <AccountCircleIcon fontSize="large" />
-                {user ? <Typography>{user.email}</Typography> : <Typography>Guest</Typography>}
+                {user ? <Typography>{user.email}</Typography> : <Typography paddingLeft={1}>Please sign in</Typography>}
               </IconButton>
             </Box>
 
-            {/* Conditionally render the NavButton only if the user is logged in */}
-            {user && (
-                <NavButton navigate_to="/master" label="Go to Master Page" />
-            )}
-
-            {!user && (
-                <Typography color="error" variant="body2" mt={2}>
-                  Please sign in to access the Master Page.
-                </Typography>
-            )}
           </Container>
         </Box>
       </ThemeProvider>

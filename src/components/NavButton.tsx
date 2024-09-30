@@ -16,6 +16,7 @@ const NavButton: React.FC<NavButtonProps> = ({ navigate_to, label }) => {
           variant="contained"
           color="primary"
           onClick={() => navigate(navigate_to)}
+          style={{ minWidth: '200px', maxWidth: '200px' }}
       >
         {label}
       </Button>
