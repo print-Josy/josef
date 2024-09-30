@@ -3,7 +3,6 @@ import { Grid, MenuItem, TextField } from '@mui/material';
 import LectureDropdown from './LectureDropdown'; // Import the new LectureDropdown component
 
 interface CourseInputDropdownProps {
-  ectsOptions: number[];
   selectedCourse: string;
   selectedEcts: number;
   onCourseChange: (course: string) => void;
@@ -20,7 +19,6 @@ interface CourseInputDropdownProps {
 }
 
 const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
-                                                                   ectsOptions,
                                                                    selectedCourse,
                                                                    selectedEcts,
                                                                    onCourseChange,
@@ -34,6 +32,9 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    labelFontSize = '13px',
                                                                    inputFontSize = '14px',
                                                                  }) => {
+
+  const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10];
+
   return (
       <Grid container spacing={spacingBetweenFields} alignItems="center">
         {/* Course Name Dropdown */}

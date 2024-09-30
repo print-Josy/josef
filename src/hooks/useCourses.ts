@@ -3,31 +3,18 @@ import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { getAuth } from 'firebase/auth';
 
-// Define a type for each field in selectedFields
 export interface SelectedField {
   selectedCourse: string;
   selectedEcts: number;
 }
 
-// Define the Course interface that represents a course document
-interface Course {
-  id: string;  // Firestore document ID
-  name: string;  // Course name
-  ects: number;  // Course ECTS points
-  type?: 'major' | 'minor';  // Optional course type (major/minor)
-}
 
-export const useCourses = (
-    selectedFields: SelectedField[],
-    setSelectedFields: React.Dispatch<React.SetStateAction<SelectedField[]>>,
-    updateEcts: (totalEcts: number) => void,
-    type: 'major' | 'minor'
-) => {
-  const [courses, setCourses] = useState<Course[]>([]);  // Stores user courses (major/minor)
+export const useCourses = (type: 'major' | 'minor') => {
+  const [selectedFields, setSelectedFields] = useState<SelectedField[]>([...Array(16)].map(() => ({ selectedCourse: '', selectedEcts: 0 })));
+  const [totalEcts, setTotalEcts] = useState(0);
   const auth = getAuth();
   const user = auth.currentUser;
 
-  // Fetch courses (user data)
   useEffect(() => {
     const fetchCourses = async () => {
       if (!user) return;
@@ -35,7 +22,6 @@ export const useCourses = (
       const coursesRef = collection(db, `users/${user.uid}/courses`);
       const querySnapshot = await getDocs(coursesRef);
 
-      const fetchedCourses: Course[] = [];
       let totalEcts = 0;
       const updatedFields = [...selectedFields];
 
@@ -43,69 +29,56 @@ export const useCourses = (
         const courseData = doc.data();
         const courseType = doc.id.startsWith('course_minor') ? 'minor' : 'major';
 
-        fetchedCourses.push({
-          id: doc.id,
-          name: courseData.selectedCourse,
-          ects: courseData.selectedEcts,
-          type: courseType,
-        });
-
-        totalEcts += courseData.selectedEcts;
-
-        const isMinor = doc.id.startsWith('course_minor');
-        const index = parseInt(doc.id.replace('course_', '').replace(type === 'major' ? 'major' : 'minor', ''), 10);
-
-        if ((type === 'minor' && isMinor) || (type === 'major' && !isMinor)) {
+        // Only update fields if they match the current type (major/minor)
+        if (courseType === type) {
+          const index = parseInt(doc.id.replace(`course_${type}`, ''), 10);
           updatedFields[index] = {
-            selectedCourse: courseData.selectedCourse,
-            selectedEcts: courseData.selectedEcts,
+            selectedCourse: courseData.selectedCourse || '',
+            selectedEcts: courseData.selectedEcts || 0,
           };
+          totalEcts += courseData.selectedEcts || 0;  // Ensure it defaults to 0
         }
       });
 
-      setCourses(fetchedCourses);
       setSelectedFields(updatedFields);
-      updateEcts(totalEcts);
+      setTotalEcts(totalEcts);
     };
 
     fetchCourses();
   }, [user, type]);
 
-
-  const handleCourseChange = async (index: number, course: string, type: 'major' | 'minor') => {
+  const handleCourseChange = async (index: number, course: string) => {
     const updatedFields = [...selectedFields];
     updatedFields[index] = { ...updatedFields[index], selectedCourse: course };
     setSelectedFields(updatedFields);
 
-    const user = auth.currentUser;
-    const courseDocId = type === 'minor' ? `course_minor${index}` : `course_major${index}`;
-
     if (user) {
+      const courseDocId = `${type === 'minor' ? 'course_minor' : 'course_major'}${index}`;
       const courseDoc = doc(db, `users/${user.uid}/courses`, courseDocId);
       await setDoc(courseDoc, {
         selectedCourse: course,
-        selectedEcts: updatedFields[index].selectedEcts || 0,
+        selectedEcts: updatedFields[index].selectedEcts,
       });
     }
   };
 
-  const handleEctsChange = async (index: number, ects: number, type: 'major' | 'minor') => {
+  const handleEctsChange = async (index: number, ects: number) => {
     const updatedFields = [...selectedFields];
     updatedFields[index] = { ...updatedFields[index], selectedEcts: ects };
     setSelectedFields(updatedFields);
 
-    const user = auth.currentUser;
-    const courseDocId = type === 'minor' ? `course_minor${index}` : `course_major${index}`;
-
     if (user) {
+      const courseDocId = `${type === 'minor' ? 'course_minor' : 'course_major'}${index}`;
       const courseDoc = doc(db, `users/${user.uid}/courses`, courseDocId);
       await setDoc(courseDoc, {
         selectedCourse: updatedFields[index].selectedCourse,
         selectedEcts: ects,
       });
     }
+
+    const newTotalEcts = updatedFields.reduce((sum, field) => sum + field.selectedEcts, 0);
+    setTotalEcts(newTotalEcts);
   };
 
-  return { courses, handleCourseChange, handleEctsChange };
+  return { selectedFields, setSelectedFields, totalEcts, handleCourseChange, handleEctsChange };
 };
-
