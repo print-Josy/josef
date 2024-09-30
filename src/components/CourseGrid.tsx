@@ -21,7 +21,7 @@ const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts, type, cols, selecte
       <Grid container spacing={1}>
         {selectedFields.map((field, index) => (
             <Grid item xs={12 / cols} key={index} style={{
-              paddingLeft: "20px",  // Add custom right padding here
+              paddingLeft: "10px",  // Add custom right padding here
             }}>
               <CourseInputDropdown
                   courses={lectures}  // Pass the predefined lectures for the dropdown

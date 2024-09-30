@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 interface ScrollableContainerProps {
   children: React.ReactNode;
   maxHeight: string;
+  sx?: object;
 }
 
 const ScrollableContainer: React.FC<ScrollableContainerProps> = ({ children, maxHeight }) => {

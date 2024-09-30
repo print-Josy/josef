@@ -169,7 +169,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               }}
           >
             {ectsOptions.map((ects, index) => (
-                <MenuItem key={index} value={ects}>
+                <MenuItem key={index} value={ects} sx={{ fontSize: '13px', fontWeight: 'bold' }} >
                   {ects}
                 </MenuItem>
             ))}
