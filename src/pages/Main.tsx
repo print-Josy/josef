@@ -68,7 +68,7 @@ function Main() {
                 borderRadius: '20px',
                 maxWidth: '600px',
                 textAlign: 'center',
-                width: '50%',
+                width: '60%',
                 paddingTop: '20px',
               }}
           >
