@@ -15,7 +15,7 @@ interface CourseGridProps {
 const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts, type, cols, selectedFields, setSelectedFields }) => {
 
   const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10];
-  const { lectures, handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts, type);
+  const { handleCourseChange, handleEctsChange } = useCourses(selectedFields, setSelectedFields, updateEcts, type);
 
   return (
       <Grid container spacing={1}>
@@ -24,7 +24,6 @@ const CourseGrid: React.FC<CourseGridProps> = ({ updateEcts, type, cols, selecte
               paddingLeft: "10px",  // Add custom right padding here
             }}>
               <CourseInputDropdown
-                  courses={lectures}  // Pass the predefined lectures for the dropdown
                   ectsOptions={ectsOptions}
                   selectedCourse={field.selectedCourse}
                   selectedEcts={field.selectedEcts}

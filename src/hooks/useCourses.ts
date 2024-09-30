@@ -24,7 +24,6 @@ export const useCourses = (
     type: 'major' | 'minor'
 ) => {
   const [courses, setCourses] = useState<Course[]>([]);  // Stores user courses (major/minor)
-  const [lectures, setLectures] = useState<Course[]>([]);  // Stores predefined lecture data for dropdowns
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -72,32 +71,6 @@ export const useCourses = (
     fetchCourses();
   }, [user, type]);
 
-  useEffect(() => {
-
-    const fetchLectures = async () => {
-      try {
-        const lecturesCollection = collection(db, 'lectures');
-        const querySnapshot = await getDocs(lecturesCollection);
-        const fetchedLectures: Course[] = [];
-
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          fetchedLectures.push({
-            id: doc.id,
-            name: data.Name,
-            ects: data.ECTS,
-          });
-        });
-
-        setLectures(fetchedLectures);
-        localStorage.setItem('lectures', JSON.stringify(fetchedLectures));
-      } catch (error) {
-        console.error('Error fetching lectures:', error);
-      }
-    };
-
-    fetchLectures();  // Fetch lectures if not cached
-  }, []);
 
   const handleCourseChange = async (index: number, course: string, type: 'major' | 'minor') => {
     const updatedFields = [...selectedFields];
@@ -133,6 +106,6 @@ export const useCourses = (
     }
   };
 
-  return { courses, lectures, handleCourseChange, handleEctsChange };
+  return { courses, handleCourseChange, handleEctsChange };
 };
 

@@ -1,15 +1,8 @@
 import React from 'react';
-import { Grid, MenuItem, TextField, Typography, Box } from '@mui/material';
-import { JSX } from 'react/jsx-runtime';
-
-interface Course {
-  id: string;
-  name: string;
-  ects: number;
-}
+import { Grid, MenuItem, TextField } from '@mui/material';
+import LectureDropdown from './LectureDropdown'; // Import the new LectureDropdown component
 
 interface CourseInputDropdownProps {
-  courses: Course[];
   ectsOptions: number[];
   selectedCourse: string;
   selectedEcts: number;
@@ -28,7 +21,6 @@ interface CourseInputDropdownProps {
 
 const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    ectsOptions,
-                                                                   courses,
                                                                    selectedCourse,
                                                                    selectedEcts,
                                                                    onCourseChange,
@@ -42,108 +34,17 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    labelFontSize = '13px',
                                                                    inputFontSize = '14px',
                                                                  }) => {
-  // Sort courses alphabetically
-  const sortedCourses = [...courses].sort((a, b) => a.name.localeCompare(b.name));
-
-  // Helper function to create separators for new starting letters
-  const renderCourseOptions = () => {
-    let lastInitial = ''; // Track the last starting letter
-    const options: JSX.Element[] = []; // Create an array for options
-
-    sortedCourses.forEach((course) => {
-      const initial = course.name.charAt(0).toUpperCase();
-      const isNewLetter = initial !== lastInitial; // Check if a new letter section starts
-      lastInitial = initial;
-
-      if (isNewLetter) {
-        options.push(
-            <Box
-                key={`separator-${initial}`}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-            >
-              <Box
-                  sx={{
-                    flex: 1,
-                    borderBottom: '0.5px solid lightgrey',  // Thin grey line on the left
-                  }}
-              />
-              <Typography
-                  sx={{
-                    fontWeight: 'bold',
-                    color: '#555',
-                    fontSize: '12px',
-                    padding: '0 12px',  // Padding between the letter and the lines
-                  }}
-              >
-                {initial}
-              </Typography>
-              <Box
-                  sx={{
-                    flex: 1,
-                    borderBottom: '0.5px solid lightgrey',  // Thin grey line on the right
-                  }}
-              />
-            </Box>
-        );
-      }
-
-      options.push(
-          <MenuItem key={course.id} value={course.name}
-              sx={{
-                fontSize: '12px',
-              }}
-          >
-            {course.name}
-          </MenuItem>
-      );
-    });
-
-    return options; // Return the array instead of fragments
-  };
-
   return (
       <Grid container spacing={spacingBetweenFields} alignItems="center">
         {/* Course Name Dropdown */}
         <Grid item xs={courseFieldWidth} style={{ paddingLeft: courseFieldPadding }}>
-          <TextField
-              select
-              label="Course"
-              value={selectedCourse}
-              onChange={(e) => onCourseChange(e.target.value)}
-              fullWidth
-              variant="outlined"
-              size="small"
-              InputProps={{
-                style: {
-                  height: `${fieldHeight}px`,
-                  fontSize: inputFontSize,
-                },
-              }}
-              InputLabelProps={{
-                style: {
-                  fontSize: labelFontSize,
-                },
-              }}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    sx: {
-                      maxHeight: 350, // Limit the dropdown height to enable scrolling
-                      overflowY: 'auto', // Scroll when there are too many options
-                    },
-                  },
-                },
-              }}
-          >
-            <MenuItem value="">
-              <em>None</em> {/* This option clears the course */}
-            </MenuItem>
-            {renderCourseOptions()}
-          </TextField>
+          <LectureDropdown
+              selectedCourse={selectedCourse}
+              onCourseChange={onCourseChange}
+              labelFontSize={labelFontSize}
+              inputFontSize={inputFontSize}
+              fieldHeight={fieldHeight}
+          />
         </Grid>
 
         {/* ECTS Dropdown */}
@@ -169,7 +70,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               }}
           >
             {ectsOptions.map((ects, index) => (
-                <MenuItem key={index} value={ects} sx={{ fontSize: '13px', fontWeight: 'bold' }} >
+                <MenuItem key={index} value={ects} sx={{ fontSize: '13px', fontWeight: 'bold' }}>
                   {ects}
                 </MenuItem>
             ))}
