@@ -15,7 +15,7 @@ const ScrollableContainer: React.FC<ScrollableContainerProps> = ({ children, max
             maxHeight: maxHeight,
             padding: '10px',
             borderRadius: '8px',
-            backgroundColor: 'rgba(255, 255, 255, 0.5)',  // Slightly opaque white background
+            backgroundColor: 'rgba(255, 255, 255, 0.80)',  // Slightly opaque white background
             border: '1px solid #ccc',  // Optional border for clarity
           }}
       >
