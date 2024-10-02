@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, Box, IconButton, Button } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
-import {  getDoc, doc } from 'firebase/firestore';
+import {  getDoc, doc, setDoc } from 'firebase/firestore';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseDialog from '../components/CourseDialog';
 import NavButton from "../components/NavButton.tsx";
@@ -9,7 +9,7 @@ import ProgressBarSection from '../components/ProgressBarSection';
 import CourseSection from '../components/CourseSection';
 import CheckboxSection from '../components/CheckboxSection';
 import { useCourses } from '../hooks/useCourses';
-import {db} from "../firebaseConfig.ts";
+import { db } from "../firebaseConfig.ts";
 
 function Master() {
   const [user, setUser] = useState<User | null>(null);
@@ -24,7 +24,7 @@ function Master() {
   const {
     selectedFields: majorFields,
     totalEcts: totalMajorEcts,
-    setSelectedFields: setMajorFields,  // Extract setSelectedFields for major
+    setSelectedFields: setMajorFields,
     handleCourseChange: handleMajorCourseChange,
     handleEctsChange: handleMajorEctsChange,
   } = useCourses('major');
@@ -32,12 +32,10 @@ function Master() {
   const {
     selectedFields: minorFields,
     totalEcts: totalMinorEcts,
-    setSelectedFields: setMinorFields,  // Extract setSelectedFields for minor
+    setSelectedFields: setMinorFields,
     handleCourseChange: handleMinorCourseChange,
     handleEctsChange: handleMinorEctsChange,
   } = useCourses('minor');
-
-
 
   useEffect(() => {
     const handleResize = () => setIsVertical(window.innerHeight > window.innerWidth);
@@ -57,6 +55,7 @@ function Master() {
           setIsMasterThesisChecked(data.isMasterThesisChecked || false);
           setIsOptionalCoursesChecked(data.isOptionalCoursesChecked || false);
         }
+
         const userRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
@@ -71,6 +70,15 @@ function Master() {
 
   const handleSignOut = () => {
     signOut(auth).then(() => window.location.href = '/');
+  };
+
+  const saveCheckboxState = async (label: string, newState: boolean) => {
+    if (user) {
+      const checkboxesRef = doc(db, `users/${user.uid}/courses`, 'course_checkboxes');
+      await setDoc(checkboxesRef, {
+        [label]: newState,
+      }, { merge: true });
+    }
   };
 
   const updateTotalEcts = () => {
@@ -108,17 +116,39 @@ function Master() {
               backgroundColor="#c1bcf4"
               height={35}
               mt={0}
-              mb={2}
+              mb={0}
               fontSize={18}
               textAlign="center"
           />
+
+          <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
+            <CheckboxSection
+                label="Master Thesis (30 ECTS)"
+                isChecked={isMasterThesisChecked}
+                onCheckboxChange={() => {
+                  const newState = !isMasterThesisChecked;
+                  setIsMasterThesisChecked(newState);
+                  saveCheckboxState('isMasterThesisChecked', newState);
+                }}
+            />
+            <CheckboxSection
+                label="Optional Courses (6 ECTS)"
+                isChecked={isOptionalCoursesChecked}
+                onCheckboxChange={() => {
+                  const newState = !isOptionalCoursesChecked;
+                  setIsOptionalCoursesChecked(newState);
+                  saveCheckboxState('isOptionalCoursesChecked', newState);
+                }}
+            />
+          </Box>
+
           <ProgressBarSection currentEcts={totalMajorEcts} totalEcts={60} headerText="Major Courses" color="#CC87F8" backgroundColor="#E5C3FC" height={30} mt={0} mb={0.5} fontSize={16} />
           <CourseSection
               cols={isVertical ? 1 : 2}
               selectedFields={majorFields}
               setSelectedFields={setMajorFields}
-              handleCourseChange={handleMajorCourseChange}  // Pass the Course handler
-              handleEctsChange={handleMajorEctsChange}  // Pass the ECTS handler
+              handleCourseChange={handleMajorCourseChange}
+              handleEctsChange={handleMajorEctsChange}
               maxHeight="300px"
           />
 
@@ -127,20 +157,21 @@ function Master() {
               cols={isVertical ? 1 : 2}
               selectedFields={minorFields}
               setSelectedFields={setMinorFields}
-              handleCourseChange={handleMinorCourseChange}  // Pass the Course handler
-              handleEctsChange={handleMinorEctsChange}  // Pass the ECTS handler
+              handleCourseChange={handleMinorCourseChange}
+              handleEctsChange={handleMinorEctsChange}
               maxHeight="260px"
           />
-          <CheckboxSection checked={isMasterThesisChecked} onChange={() => setIsMasterThesisChecked(!isMasterThesisChecked)} label="Master Thesis (30 ECTS)" />
-          <CheckboxSection checked={isOptionalCoursesChecked} onChange={() => setIsOptionalCoursesChecked(!isOptionalCoursesChecked)} label="Optional Courses (6 ECTS)" />
+
 
           {isAdmin && (
-              <Button variant="outlined" color="secondary" onClick={() => setOpen(true)}>
+              <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} sx={{ mt: 1 }}>
                 Add New Course
               </Button>
           )}
           <CourseDialog open={open} onClose={() => setOpen(false)} />
-          <NavButton navigate_to="/" label="Back to Home" />
+          <Box display="flex" justifyContent="right" sx={{ mb: 2 }}>
+            <NavButton navigate_to="/" label="Back to Home"  />
+          </Box>
         </Container>
       </Box>
   );

@@ -2,15 +2,15 @@ import React from 'react';
 import { Box, Checkbox, Typography } from '@mui/material';
 
 interface CheckboxSectionProps {
-  checked: boolean;
-  onChange: () => void;
   label: string;
+  isChecked: boolean;  // Current checked state
+  onCheckboxChange: () => void;  // Function to handle checkbox changes
 }
 
-const CheckboxSection: React.FC<CheckboxSectionProps> = ({ checked, onChange, label }) => {
+const CheckboxSection: React.FC<CheckboxSectionProps> = ({ label, isChecked, onCheckboxChange }) => {
   return (
-      <Box display="flex" alignItems="center">
-        <Checkbox checked={checked} onChange={onChange} />
+      <Box display="flex" alignItems="center" sx={{ paddingRight: 6 }}>
+        <Checkbox checked={isChecked} onChange={onCheckboxChange} />
         <Typography>{label}</Typography>
       </Box>
   );
