@@ -121,9 +121,14 @@ function Master() {
               textAlign="center"
           />
 
-          <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
+          <Box
+              display="flex"
+              alignItems="center"
+              sx={{ mb: 1 }}
+              flexDirection={isVertical ? 'column' : 'row'}  // Conditionally set the direction
+          >
             <CheckboxSection
-                label="Master Thesis (30 ECTS)"
+                label="MA - Thesis"
                 isChecked={isMasterThesisChecked}
                 onCheckboxChange={() => {
                   const newState = !isMasterThesisChecked;
@@ -132,7 +137,7 @@ function Master() {
                 }}
             />
             <CheckboxSection
-                label="Optional Courses (6 ECTS)"
+                label="Optional Courses"
                 isChecked={isOptionalCoursesChecked}
                 onCheckboxChange={() => {
                   const newState = !isOptionalCoursesChecked;
@@ -169,7 +174,7 @@ function Master() {
               </Button>
           )}
           <CourseDialog open={open} onClose={() => setOpen(false)} />
-          <Box display="flex" justifyContent="right" sx={{ mb: 2 }}>
+          <Box display="flex" justifyContent="right" sx={{ mt: 1 }}>
             <NavButton navigate_to="/" label="Back to Home"  />
           </Box>
         </Container>
