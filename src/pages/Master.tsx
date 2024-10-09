@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Typography, Box, IconButton, Button } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
-import {  getDoc, doc, setDoc } from 'firebase/firestore';
+import { getDoc, doc, setDoc } from 'firebase/firestore';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseDialog from '../components/CourseDialog';
 import NavButton from "../components/NavButton.tsx";
@@ -24,6 +24,7 @@ function Master() {
   const {
     selectedFields: majorFields,
     totalEcts: totalMajorEcts,
+    totalAchievedEcts: totalAchievedMajorEcts,
     setSelectedFields: setMajorFields,
     handleCourseChange: handleMajorCourseChange,
     handleEctsChange: handleMajorEctsChange,
@@ -32,6 +33,7 @@ function Master() {
   const {
     selectedFields: minorFields,
     totalEcts: totalMinorEcts,
+    totalAchievedEcts: totalAchievedMinorEcts,
     setSelectedFields: setMinorFields,
     handleCourseChange: handleMinorCourseChange,
     handleEctsChange: handleMinorEctsChange,
@@ -88,6 +90,13 @@ function Master() {
     return totalEcts;
   };
 
+  const updateTotalAchievedEcts = () => {
+    let totalAchievedEcts = totalAchievedMajorEcts + totalAchievedMinorEcts;
+    if (isMasterThesisChecked) totalAchievedEcts += 30;
+    if (isOptionalCoursesChecked) totalAchievedEcts += 6;
+    return totalAchievedEcts;
+  };
+
   return (
       <Box
           sx={{
@@ -109,10 +118,14 @@ function Master() {
             </IconButton>
           </Box>
 
+          {/* Total Progress Bar */}
           <ProgressBarSection
               currentEcts={updateTotalEcts()}
+              achievedEcts={updateTotalAchievedEcts()}
               totalEcts={120}
+              useDualProgress={true}
               color="#7B80F7"
+              achievedColor="#4CAF50"
               backgroundColor="#c1bcf4"
               height={35}
               mt={0}
@@ -125,7 +138,7 @@ function Master() {
               display="flex"
               alignItems="flex-start"
               sx={{ mb: 1 }}
-              flexDirection={isVertical ? 'column' : 'row'}  // Conditionally set the direction
+              flexDirection={isVertical ? 'column' : 'row'}
           >
             <CheckboxSection
                 label="MA - Thesis"
@@ -142,12 +155,26 @@ function Master() {
                 onCheckboxChange={() => {
                   const newState = !isOptionalCoursesChecked;
                   setIsOptionalCoursesChecked(newState);
-                  saveCheckboxState('isOptionalCoursesChecked', newState);
                 }}
             />
           </Box>
 
-          <ProgressBarSection currentEcts={totalMajorEcts} totalEcts={60} headerText="Major Courses" color="#CC87F8" backgroundColor="#E5C3FC" height={30} mt={0} mb={0.5} fontSize={16} />
+          {/* Major Courses Progress Bar */}
+          <ProgressBarSection
+              currentEcts={totalMajorEcts}
+              achievedEcts={totalAchievedMajorEcts}
+              totalEcts={60}
+              useDualProgress={true}
+              achievedColor="#4CAF50"
+              headerText="Major Courses"
+              color="#CC87F8"
+              backgroundColor="#E5C3FC"
+              height={30}
+              mt={0}
+              mb={0.5}
+              fontSize={16}
+          />
+
           <CourseSection
               cols={isVertical ? 1 : 2}
               selectedFields={majorFields}
@@ -157,7 +184,22 @@ function Master() {
               maxHeight="300px"
           />
 
-          <ProgressBarSection currentEcts={totalMinorEcts} totalEcts={24} headerText="Minor Courses" color="#F7C5FC" backgroundColor="#ffe7ff" height={30} mt={2} mb={0.5} fontSize={16} />
+          {/* Minor Courses Progress Bar */}
+          <ProgressBarSection
+              currentEcts={totalMinorEcts}
+              achievedEcts={totalAchievedMinorEcts}
+              totalEcts={24}
+              useDualProgress={true}
+              achievedColor="#4CAF50"
+              headerText="Minor Courses"
+              color="#F7C5FC"
+              backgroundColor="#ffe7ff"
+              height={30}
+              mt={2}
+              mb={0.5}
+              fontSize={16}
+          />
+
           <CourseSection
               cols={isVertical ? 1 : 2}
               selectedFields={minorFields}
@@ -167,15 +209,15 @@ function Master() {
               maxHeight="260px"
           />
 
-
           {isAdmin && (
               <Button variant="outlined" color="secondary" onClick={() => setOpen(true)} sx={{ mt: 1 }}>
                 Add New Course
               </Button>
           )}
           <CourseDialog open={open} onClose={() => setOpen(false)} />
+
           <Box display="flex" justifyContent="right" sx={{ mt: 1 }}>
-            <NavButton navigate_to="/" label="Back to Home"  />
+            <NavButton navigate_to="/" label="Back to Home" />
           </Box>
         </Container>
       </Box>

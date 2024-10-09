@@ -10,7 +10,7 @@ interface CheckboxSectionProps {
 const CheckboxSection: React.FC<CheckboxSectionProps> = ({ label, isChecked, onCheckboxChange }) => {
   return (
       <Box display="flex" alignItems="center" sx={{ paddingRight: 6 }}>
-        <Checkbox checked={isChecked} onChange={onCheckboxChange} />
+        <Checkbox checked={isChecked} onChange={onCheckboxChange} color="secondary" />
         <Typography>{label}</Typography>
       </Box>
   );

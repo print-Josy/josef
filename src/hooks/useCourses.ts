@@ -14,11 +14,10 @@ export interface EctsStatusChange {
   achieved: boolean;
 }
 
-
-
 export const useCourses = (type: 'major' | 'minor') => {
   const [selectedFields, setSelectedFields] = useState<SelectedField[]>([...Array(16)].map(() => ({ selectedCourse: '', selectedEcts: 0, achieved: false})));
   const [totalEcts, setTotalEcts] = useState(0);
+  const [totalAchievedEcts, setTotalAchievedEcts] = useState(0);  // Track achieved ECTS
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -30,6 +29,7 @@ export const useCourses = (type: 'major' | 'minor') => {
       const querySnapshot = await getDocs(coursesRef);
 
       let totalEcts = 0;
+      let totalAchievedEcts = 0;  // Initialize achieved ECTS sum
       const updatedFields = [...selectedFields];
 
       querySnapshot.forEach((doc) => {
@@ -39,17 +39,23 @@ export const useCourses = (type: 'major' | 'minor') => {
         // Only update fields if they match the current type (major/minor)
         if (courseType === type) {
           const index = parseInt(doc.id.replace(`course_${type}`, ''), 10);
+          const ects = courseData.selectedEcts || 0;
+          const achieved = courseData.achieved || false;
+
           updatedFields[index] = {
-            achieved: courseData.achieved || false,
+            achieved,
             selectedCourse: courseData.selectedCourse || '',
-            selectedEcts: courseData.selectedEcts || 0,
+            selectedEcts: ects,
           };
-          totalEcts += courseData.selectedEcts || 0;  // Ensure it defaults to 0
+
+          totalEcts += ects;
+          if (achieved) totalAchievedEcts += ects;  // Add to achieved ECTS if the course is marked as achieved
         }
       });
 
       setSelectedFields(updatedFields);
       setTotalEcts(totalEcts);
+      setTotalAchievedEcts(totalAchievedEcts);  // Set achieved ECTS
     };
 
     fetchCourses();
@@ -87,9 +93,20 @@ export const useCourses = (type: 'major' | 'minor') => {
       });
     }
 
+    // Update total ECTS and total achieved ECTS
     const newTotalEcts = updatedFields.reduce((sum, field) => sum + field.selectedEcts, 0);
+    const newTotalAchievedEcts = updatedFields.reduce((sum, field) => field.achieved ? sum + field.selectedEcts : sum, 0);
+
     setTotalEcts(newTotalEcts);
+    setTotalAchievedEcts(newTotalAchievedEcts);  // Update achieved ECTS
   };
 
-  return { selectedFields, setSelectedFields, totalEcts, handleCourseChange, handleEctsChange };
+  return {
+    selectedFields,
+    setSelectedFields,
+    totalEcts,
+    totalAchievedEcts,  // Return achieved ECTS as well
+    handleCourseChange,
+    handleEctsChange
+  };
 };

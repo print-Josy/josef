@@ -41,7 +41,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
 
   // Apply conditional styles
   const ectsFieldStyle = {
-    backgroundColor: achieved ? '#d4f8d4' : 'undefined',  // Light green background when achieved
+    backgroundColor: achieved ? '#d4f8d4' : 'rgba(255, 255, 255, 0)',  // Light green background when achieved
   };
 
   return (
