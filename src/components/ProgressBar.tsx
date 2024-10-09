@@ -31,6 +31,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const progress = Math.min((currentEcts / totalEcts) * 100, 100);
   const achievedProgress = useDualProgress ? Math.min((achievedEcts / totalEcts) * 100, 100) : 0;
 
+  // Apply border and pulse effect only when achievedEcts equals or exceeds totalEcts
+  const pulseEffect = achievedEcts >= totalEcts;
+
   return (
       <Box
           display="flex"
@@ -40,7 +43,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           width="100%"
           maxWidth="100%"
           sx={{
-            ...(progress >= 100 && {
+            ...(pulseEffect && {
               border: '4px solid rgba(255, 223, 0, 0.6)',  // Light transparent yellow border
               animation: 'pulse 1.5s infinite',
             }),
@@ -109,27 +112,29 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                 color="textPrimary"
                 sx={{ fontWeight: 'bold', fontSize: `${fontSize}px` }}
             >
-              {`${currentEcts} / ${totalEcts}`} {useDualProgress && `(${achievedEcts})`}
+              {`${achievedEcts} / ${totalEcts}`} {useDualProgress && `(open ${currentEcts - achievedEcts})`}
             </Typography>
           </Box>
         </Box>
 
         {/* CSS for pulsing animation */}
-        <style>
-          {`
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 15px rgba(255, 223, 0, 0.5);
-          }
-          100% {
-            box-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
-          }
-        }
-      `}
-        </style>
+        {pulseEffect && (
+            <style>
+              {`
+            @keyframes pulse {
+              0% {
+                box-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
+              }
+              50% {
+                box-shadow: 0 0 15px rgba(255, 223, 0, 0.5);
+              }
+              100% {
+                box-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
+              }
+            }
+          `}
+            </style>
+        )}
       </Box>
   );
 };
