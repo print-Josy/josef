@@ -1,12 +1,15 @@
 import React from 'react';
 import { Grid, MenuItem, TextField } from '@mui/material';
-import LectureDropdown from './LectureDropdown'; // Import the new LectureDropdown component
+import LectureDropdown from './LectureDropdown';
+import {EctsStatusChange} from "../hooks/useCourses.ts";
+
 
 interface CourseInputDropdownProps {
   selectedCourse: string;
   selectedEcts: number;
+  achieved: boolean;  // New prop for the achieved status
   onCourseChange: (course: string) => void;
-  onEctsChange: (ects: number) => void;
+  onEctsChange: (change: EctsStatusChange) => void; // Use structured change
 
   courseFieldWidth?: number;
   ectsFieldWidth?: number;
@@ -21,6 +24,7 @@ interface CourseInputDropdownProps {
 const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    selectedCourse,
                                                                    selectedEcts,
+                                                                   achieved,  // Use the achieved status
                                                                    onCourseChange,
                                                                    onEctsChange,
                                                                    courseFieldWidth = 9,
@@ -35,9 +39,13 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
 
   const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10];
 
+  // Apply conditional styles
+  const ectsFieldStyle = {
+    backgroundColor: achieved ? '#d4f8d4' : 'undefined',  // Light green background when achieved
+  };
+
   return (
       <Grid container spacing={spacingBetweenFields} alignItems="center">
-        {/* Course Name Dropdown */}
         <Grid item xs={courseFieldWidth} style={{ paddingLeft: courseFieldPadding }}>
           <LectureDropdown
               selectedCourse={selectedCourse}
@@ -48,18 +56,28 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
           />
         </Grid>
 
-        {/* ECTS Dropdown */}
         <Grid item xs={ectsFieldWidth} style={{ paddingLeft: ectsFieldPadding }}>
           <TextField
               select
               label="ECTS"
               value={selectedEcts}
-              onChange={(e) => onEctsChange(Number(e.target.value))}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                let ects = value;
+                let achieved = false;
+
+                if (ects === -1) { // If DONE is selected
+                  achieved = true;
+                  ects = selectedEcts; // Keep the current ECTS when "DONE" is selected
+                }
+                onEctsChange({ ects, achieved }); // Send structured change
+              }}
               fullWidth
               variant="outlined"
               size="small"
               InputProps={{
                 style: {
+                  ...ectsFieldStyle,
                   height: `${fieldHeight}px`,
                   fontSize: inputFontSize,
                 },
@@ -70,6 +88,9 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                 },
               }}
           >
+            <MenuItem value={-1} sx={{ fontSize: '13px', fontWeight: 'bold' }}>
+              DONE
+            </MenuItem>
             {ectsOptions.map((ects, index) => (
                 <MenuItem key={index} value={ects} sx={{ fontSize: '13px', fontWeight: 'bold' }}>
                   {ects}

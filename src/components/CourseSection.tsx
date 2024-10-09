@@ -2,19 +2,17 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import ScrollableContainer from './ScrollableContainer';
 import CourseGrid from './CourseGrid';
+import { EctsStatusChange, SelectedField } from '../hooks/useCourses'; // Ensure correct import
 
-interface CourseField {
-  selectedCourse: string;
-  selectedEcts: number;
-}
+
 
 interface CourseSectionProps {
   cols: number;
-  selectedFields: CourseField[];
-  setSelectedFields: React.Dispatch<React.SetStateAction<CourseField[]>>;
+  selectedFields: SelectedField[];
+  setSelectedFields: React.Dispatch<React.SetStateAction<SelectedField[]>>;
   maxHeight: string;
   handleCourseChange: (index: number, course: string) => void;  // Add course handler
-  handleEctsChange: (index: number, ects: number) => void;  // Add ECTS handler
+  handleEctsChange: (index: number, change: EctsStatusChange) => void;
 }
 
 const CourseSection: React.FC<CourseSectionProps> = ({

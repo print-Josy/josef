@@ -2,21 +2,21 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import CourseInputDropdown from './CourseInputDropdown';
 import { SelectedField } from '../hooks/useCourses';
+import { EctsStatusChange } from '../hooks/useCourses'; // Ensure correct import
 
 interface CourseGridProps {
   cols: number;
   selectedFields: SelectedField[];
   setSelectedFields: React.Dispatch<React.SetStateAction<SelectedField[]>>;
-  handleCourseChange: (index: number, course: string) => void;  // Add course handler
-  handleEctsChange: (index: number, ects: number) => void;  // Add ECTS handler
+  handleCourseChange: (index: number, course: string) => void;
+  handleEctsChange: (index: number, change: EctsStatusChange) => void;
 }
 
 const CourseGrid: React.FC<CourseGridProps> = ({
-
                                                  cols,
                                                  selectedFields,
-                                                 handleCourseChange,  // Receive handler
-                                                 handleEctsChange,  // Receive handler
+                                                 handleCourseChange,
+                                                 handleEctsChange,
                                                }) => {
 
   return (
@@ -26,8 +26,9 @@ const CourseGrid: React.FC<CourseGridProps> = ({
               <CourseInputDropdown
                   selectedCourse={field.selectedCourse}
                   selectedEcts={field.selectedEcts}
-                  onCourseChange={(course) => handleCourseChange(index, course)}  // Use handler
-                  onEctsChange={(ects) => handleEctsChange(index, ects)}  // Use handler
+                  achieved={field.achieved}
+                  onCourseChange={(course) => handleCourseChange(index, course)}
+                  onEctsChange={(change) => handleEctsChange(index, change)} // Directly pass the structured object
               />
             </Grid>
         ))}

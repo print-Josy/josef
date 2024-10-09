@@ -6,11 +6,18 @@ import { getAuth } from 'firebase/auth';
 export interface SelectedField {
   selectedCourse: string;
   selectedEcts: number;
+  achieved: boolean;
+}
+
+export interface EctsStatusChange {
+  ects: number;
+  achieved: boolean;
 }
 
 
+
 export const useCourses = (type: 'major' | 'minor') => {
-  const [selectedFields, setSelectedFields] = useState<SelectedField[]>([...Array(16)].map(() => ({ selectedCourse: '', selectedEcts: 0 })));
+  const [selectedFields, setSelectedFields] = useState<SelectedField[]>([...Array(16)].map(() => ({ selectedCourse: '', selectedEcts: 0, achieved: false})));
   const [totalEcts, setTotalEcts] = useState(0);
   const auth = getAuth();
   const user = auth.currentUser;
@@ -33,6 +40,7 @@ export const useCourses = (type: 'major' | 'minor') => {
         if (courseType === type) {
           const index = parseInt(doc.id.replace(`course_${type}`, ''), 10);
           updatedFields[index] = {
+            achieved: courseData.achieved || false,
             selectedCourse: courseData.selectedCourse || '',
             selectedEcts: courseData.selectedEcts || 0,
           };
@@ -58,13 +66,15 @@ export const useCourses = (type: 'major' | 'minor') => {
       await setDoc(courseDoc, {
         selectedCourse: course,
         selectedEcts: updatedFields[index].selectedEcts,
+        achieved: updatedFields[index].achieved || false,
       });
     }
   };
 
-  const handleEctsChange = async (index: number, ects: number) => {
+  const handleEctsChange = async (index: number, { ects, achieved }: EctsStatusChange) => {
     const updatedFields = [...selectedFields];
-    updatedFields[index] = { ...updatedFields[index], selectedEcts: ects };
+    updatedFields[index] = { ...updatedFields[index], selectedEcts: ects, achieved };  // Update both ECTS and achieved
+
     setSelectedFields(updatedFields);
 
     if (user) {
@@ -73,6 +83,7 @@ export const useCourses = (type: 'major' | 'minor') => {
       await setDoc(courseDoc, {
         selectedCourse: updatedFields[index].selectedCourse,
         selectedEcts: ects,
+        achieved: achieved, // Add the achieved status
       });
     }
 
