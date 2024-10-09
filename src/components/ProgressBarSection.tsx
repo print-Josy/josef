@@ -15,7 +15,6 @@ interface ProgressBarSectionProps {
   mb?: number | string;           // Optional margin-bottom
   px?: number | string;           // Optional padding-x (horizontal padding)
   fontSize?: number;              // Optional font size for the text
-  textAlign?: 'left' | 'center';  // Optional text alignment
   headerText?: string;            // Optional header text
 }
 
@@ -32,7 +31,6 @@ const ProgressBarSection: React.FC<ProgressBarSectionProps> = ({
                                                                  mb = 1,                         // Default margin-bottom
                                                                  px = 0,                         // Default padding-x
                                                                  fontSize = 16,                  // Default font size
-                                                                 textAlign = 'left',             // Default text alignment
                                                                  headerText = '',                // Default header text
                                                                }) => {
   return (
@@ -54,7 +52,6 @@ const ProgressBarSection: React.FC<ProgressBarSectionProps> = ({
             achievedColor={achievedColor}     // Pass the color for achieved progress
             height={height}
             headerText={headerText}
-            textAlign={textAlign}
             fontSize={fontSize}
             backgroundColor={backgroundColor}
         />

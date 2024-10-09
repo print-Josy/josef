@@ -15,6 +15,7 @@ interface LectureDropdownProps {
   labelFontSize?: string;
   inputFontSize?: string;
   fieldHeight?: number;
+  fieldStyle?: React.CSSProperties;  // New prop for passing field styles
 }
 
 const LectureDropdown: React.FC<LectureDropdownProps> = ({
@@ -23,6 +24,7 @@ const LectureDropdown: React.FC<LectureDropdownProps> = ({
                                                            labelFontSize = '13px',
                                                            inputFontSize = '14px',
                                                            fieldHeight = 30,
+                                                           fieldStyle = {},  // Default to an empty style
                                                          }) => {
   const [lectures, setLectures] = useState<Course[]>([]); // Stores predefined lecture data for dropdowns
 
@@ -126,6 +128,7 @@ const LectureDropdown: React.FC<LectureDropdownProps> = ({
           size="small"
           InputProps={{
             style: {
+              ...fieldStyle,
               height: `${fieldHeight}px`,
               fontSize: inputFontSize,
             },

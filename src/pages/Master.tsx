@@ -124,14 +124,13 @@ function Master() {
               achievedEcts={updateTotalAchievedEcts()}
               totalEcts={120}
               useDualProgress={true}
-              color="#7B80F7"
-              achievedColor="#4CAF50"
-              backgroundColor="#c1bcf4"
+              color='rgba(168, 42, 119, 0.6)'
+              achievedColor="#a82a77"
+              backgroundColor='rgba(255, 255, 255, 0.80)'
               height={35}
               mt={0}
               mb={0}
               fontSize={18}
-              textAlign="center"
           />
 
           <Box
@@ -165,10 +164,10 @@ function Master() {
               achievedEcts={totalAchievedMajorEcts}
               totalEcts={60}
               useDualProgress={true}
-              achievedColor="#4CAF50"
+              achievedColor="#55A2EB"
               headerText="Major Courses"
-              color="#CC87F8"
-              backgroundColor="#E5C3FC"
+              color= 'rgba(85, 162, 235, 0.4)'
+              backgroundColor='rgba(255, 255, 255, 0.80)'
               height={30}
               mt={0}
               mb={0.5}
@@ -190,10 +189,10 @@ function Master() {
               achievedEcts={totalAchievedMinorEcts}
               totalEcts={24}
               useDualProgress={true}
-              achievedColor="#4CAF50"
+              achievedColor="#55A2EB"
               headerText="Minor Courses"
-              color="#F7C5FC"
-              backgroundColor="#ffe7ff"
+              color='rgba(85, 162, 235, 0.5)'
+              backgroundColor='rgba(255, 255, 255, 0.80)'
               height={30}
               mt={2}
               mb={0.5}

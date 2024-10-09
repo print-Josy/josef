@@ -9,8 +9,7 @@ interface ProgressBarProps {
   color?: string;
   achievedColor?: string;        // Color for the achieved progress bar
   height?: number;
-  headerText?: string;           // Optional header text (e.g., "Major Courses")
-  textAlign?: 'left' | 'center'; // Alignment of the text
+  headerText?: string;           // Optional header text (e.g., "Major Courses" or "Master")
   fontSize?: number;             // Optional font size for the text
   backgroundColor?: string;      // Background color for the unfilled bar
 }
@@ -24,7 +23,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                                                    achievedColor = 'secondary',   // Default color for achieved progress
                                                    height = 20,
                                                    headerText = '',
-                                                   textAlign = 'center',
                                                    fontSize = 16,
                                                    backgroundColor = '#ccc'
                                                  }) => {
@@ -33,6 +31,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
   // Apply border and pulse effect only when achievedEcts equals or exceeds totalEcts
   const pulseEffect = achievedEcts >= totalEcts;
+  const isMasterBar = !headerText;  // If there's no header text, center the bar
 
   return (
       <Box
@@ -51,27 +50,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           }}
       >
         <Box sx={{ position: "relative", width: "100%" }}>
-          {/* Achieved ECTS Progress Bar (if useDualProgress is true) */}
-          {useDualProgress && (
-              <LinearProgress
-                  variant="determinate"
-                  value={achievedProgress}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    height: `${height}px`,
-                    width: '100%',
-                    borderRadius: '7px',
-                    opacity: 0.6  // Semi-transparent to differentiate from the main progress bar
-                  }}
-                  sx={{
-                    '& .MuiLinearProgress-bar': { backgroundColor: achievedColor },
-                    backgroundColor: backgroundColor // Set background color for the unfilled bar
-                  }}
-              />
-          )}
-
-          {/* Main Progress Bar */}
+          {/* Main Progress Bar (current ECTS at the bottom) */}
           <LinearProgress
               variant="determinate"
               value={progress}
@@ -82,22 +61,42 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
               }}
           />
 
-          {/* Text inside the bar */}
+          {/* Achieved ECTS Progress Bar (on top) */}
+          {useDualProgress && (
+              <LinearProgress
+                  variant="determinate"
+                  value={achievedProgress}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    height: `${height}px`,
+                    width: '100%',
+                    borderRadius: '7px',
+                  }}
+                  sx={{
+                    '& .MuiLinearProgress-bar': { backgroundColor: achievedColor },
+                    backgroundColor: 'transparent' // Transparent background to overlay on the main progress bar
+                  }}
+              />
+          )}
+
+          {/* Text layout */}
           <Box
               sx={{
                 position: "absolute",
                 top: "0",
-                left: textAlign === 'left' ? '5px' : '50%',  // Align text left or center
-                transform: textAlign === 'center' ? 'translateX(-50%)' : 'none', // Only center if textAlign is 'center'
+                left: isMasterBar ? '50%' : '0',  // Align center for Master, left for others
+                transform: isMasterBar ? 'translateX(-50%)' : 'none',  // Center for Master
                 width: "100%",
                 display: "flex",
-                justifyContent: textAlign === 'left' ? 'space-between' : 'center',  // Align text accordingly
+                justifyContent: isMasterBar ? 'center' : 'space-between',  // Center for Master, space between for others
                 alignItems: "center",
                 height: "100%",
-                padding: '0 15px'  // Adjust padding to create space between the edge and text
+                padding: '0 15px',  // Padding for some space on the sides
               }}
           >
-            {headerText && textAlign === 'left' && (
+            {/* Header Text (on the left for non-Master bar) */}
+            {headerText && !isMasterBar && (
                 <Typography
                     variant="body1"
                     color="textPrimary"
@@ -107,13 +106,43 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                 </Typography>
             )}
 
-            <Typography
-                variant="body1"
-                color="textPrimary"
-                sx={{ fontWeight: 'bold', fontSize: `${fontSize}px` }}
-            >
-              {`${achievedEcts} / ${totalEcts}`} {useDualProgress && `(open ${currentEcts - achievedEcts})`}
-            </Typography>
+            {/* ECTS values (centered for Master, right-aligned for others) */}
+            <Box display="flex" alignItems="center">
+
+              <Typography
+                  variant="body1"
+                  color="textPrimary"
+                  sx={{ fontWeight: 'bold', fontSize: `${fontSize}px`, paddingLeft: '20px' }}
+              >
+                {achievedEcts}
+              </Typography>
+
+              <Typography
+                  variant="body1"
+                  color="textPrimary"
+                  sx={{ fontWeight: 'bold', fontSize: `${fontSize}px`, mx: 0.5 }}
+              >
+                {" / "}
+              </Typography>
+
+              <Typography
+                  variant="body1"
+                  color="textPrimary"
+                  sx={{ fontWeight: 'bold', fontSize: `${fontSize}px` }}
+              >
+                {totalEcts}
+              </Typography>
+
+              {(currentEcts - achievedEcts > 0) && useDualProgress && (
+                <Typography
+                    variant="body1"
+                    color="textPrimary"
+                    sx={{ fontWeight: 'italic', fontSize: `${fontSize - 3}px`, ml: 1 }}
+                >
+                  {`(open ${currentEcts - achievedEcts}/${currentEcts})`}
+                </Typography>
+              )}
+            </Box>
           </Box>
         </Box>
 

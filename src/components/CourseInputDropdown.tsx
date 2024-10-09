@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, MenuItem, TextField } from '@mui/material';
+import {Grid, MenuItem, TextField} from '@mui/material';
 import LectureDropdown from './LectureDropdown';
 import {EctsStatusChange} from "../hooks/useCourses.ts";
 
@@ -40,8 +40,8 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
   const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10];
 
   // Apply conditional styles
-  const ectsFieldStyle = {
-    backgroundColor: achieved ? '#d4f8d4' : 'rgba(255, 255, 255, 0)',  // Light green background when achieved
+  const FieldStyle = {
+    backgroundColor: achieved ? 'rgba(85, 162, 235, 0.4)' : 'rgba(255, 255, 255, 0)',  // Light green background when achieved
   };
 
   return (
@@ -53,6 +53,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               labelFontSize={labelFontSize}
               inputFontSize={inputFontSize}
               fieldHeight={fieldHeight}
+              fieldStyle={FieldStyle}
           />
         </Grid>
 
@@ -62,8 +63,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               label="ECTS"
               value={selectedEcts}
               onChange={(e) => {
-                const value = Number(e.target.value);
-                let ects = value;
+                let ects = Number(e.target.value);
                 let achieved = false;
 
                 if (ects === -1) { // If DONE is selected
@@ -77,7 +77,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
               size="small"
               InputProps={{
                 style: {
-                  ...ectsFieldStyle,
+                  ...FieldStyle,
                   height: `${fieldHeight}px`,
                   fontSize: inputFontSize,
                 },
