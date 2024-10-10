@@ -1,13 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { MenuItem, Typography, Box, TextField } from '@mui/material';
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebaseConfig.ts";
-
-interface Course {
-  id: string;
-  name: string;
-  ects: number;
-}
+import { lectureNames } from '../assets/lectures.ts';  // Import the lecture names
 
 interface LectureDropdownProps {
   selectedCourse: string;
@@ -26,36 +19,8 @@ const LectureDropdown: React.FC<LectureDropdownProps> = ({
                                                            fieldHeight = 30,
                                                            fieldStyle = {},  // Default to an empty style
                                                          }) => {
-  const [lectures, setLectures] = useState<Course[]>([]); // Stores predefined lecture data for dropdowns
-
-  useEffect(() => {
-    const fetchLectures = async () => {
-      try {
-        const lecturesCollection = collection(db, 'lectures');
-        const querySnapshot = await getDocs(lecturesCollection);
-        const fetchedLectures: Course[] = [];
-
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          fetchedLectures.push({
-            id: doc.id,
-            name: data.Name,
-            ects: data.ECTS,
-          });
-        });
-
-        setLectures(fetchedLectures);
-        localStorage.setItem('lectures', JSON.stringify(fetchedLectures));
-      } catch (error) {
-        console.error('Error fetching lectures:', error);
-      }
-    };
-
-    fetchLectures();
-  }, []);
-
   // Sort courses alphabetically
-  const sortedLectures = [...lectures].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedLectures = [...lectureNames].sort((a, b) => a.localeCompare(b));
 
   // Helper function to create separators for new starting letters
   const renderCourseOptions = () => {
@@ -63,7 +28,7 @@ const LectureDropdown: React.FC<LectureDropdownProps> = ({
     const options: JSX.Element[] = []; // Create an array for options
 
     sortedLectures.forEach((course) => {
-      const initial = course.name.charAt(0).toUpperCase();
+      const initial = course.charAt(0).toUpperCase();
       const isNewLetter = initial !== lastInitial; // Check if a new letter section starts
       lastInitial = initial;
 
@@ -104,12 +69,8 @@ const LectureDropdown: React.FC<LectureDropdownProps> = ({
       }
 
       options.push(
-          <MenuItem key={course.id} value={course.name}
-                    sx={{
-                      fontSize: '12px',
-                    }}
-          >
-            {course.name}
+          <MenuItem key={course} value={course} sx={{ fontSize: '12px' }}>
+            {course}
           </MenuItem>
       );
     });

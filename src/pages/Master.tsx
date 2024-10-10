@@ -5,6 +5,8 @@ import { getDoc, doc, setDoc } from 'firebase/firestore';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CourseDialog from '../components/CourseDialog';
 import NavButton from "../components/NavButton.tsx";
+import PDFPopup from '../components/PDFPopup'; // Import the PDFPopup component
+
 import ProgressBarSection from '../components/ProgressBarSection';
 import CourseSection from '../components/CourseSection';
 import CheckboxSection from '../components/CheckboxSection';
@@ -215,7 +217,11 @@ function Master() {
           )}
           <CourseDialog open={open} onClose={() => setOpen(false)} />
 
-          <Box display="flex" justifyContent="right" sx={{ mt: 1 }}>
+          <Box display="flex" justifyContent="right" alignItems="center" sx={{ mt: 1 }}>
+            {/* PDF Popup button (next to the Back to Home button) */}
+            <PDFPopup pdfUrl={'https://firebasestorage.googleapis.com/v0/b/josef-website.appspot.com/o/doc%2FQuickview-MASTER.pdf?alt=media&token=5e7f1cdc-ab0a-4606-803b-d2dbd8b4f55b'} />
+
+            {/* Back to Home button */}
             <NavButton navigate_to="/" label="Back to Home" />
           </Box>
         </Container>
