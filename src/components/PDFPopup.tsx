@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, IconButton } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
+import SchoolIcon from '@mui/icons-material/School';
 interface PDFPopupProps {
   pdfUrl: string;
 }
@@ -14,7 +14,7 @@ const PDFPopup: React.FC<PDFPopupProps> = ({ pdfUrl }) => {
   return (
       <>
         <IconButton onClick={handleOpen} color="primary" sx={{ marginRight: '10px' }}>
-          <InfoIcon fontSize="large" />
+          <SchoolIcon fontSize="large" />
         </IconButton>
         <Dialog
             open={open}
@@ -22,7 +22,7 @@ const PDFPopup: React.FC<PDFPopupProps> = ({ pdfUrl }) => {
             fullWidth
             maxWidth="md" // Medium width for the PDF
         >
-          <DialogContent sx={{ height: '500px', overflow: 'hidden' }}>
+          <DialogContent sx={{ height: '800px', overflow: 'hidden' }}>
             <iframe
                 src={pdfUrl}
                 width="100%"
