@@ -163,5 +163,6 @@ export const lectureNames = [
 'Automatic Speech Recognition',
 'Sustainability CS',
 'Nonlinear Signal Processing',
-'Linguistic Foundations of Speech and Language Technology'
+'Linguistic Foundations of Speech and Language Technology',
+'Seminar/Project Information Security'
 ];
