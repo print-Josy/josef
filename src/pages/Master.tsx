@@ -219,7 +219,7 @@ function Master() {
 
           <Box display="flex" justifyContent="right" alignItems="center" sx={{ mt: 1 }}>
             {/* PDF Popup button (next to the Back to Home button) */}
-            <PDFPopup pdfUrl={'https://firebasestorage.googleapis.com/v0/b/josef-website.appspot.com/o/doc%2FQuickview-MASTER.pdf?alt=media&token=5e7f1cdc-ab0a-4606-803b-d2dbd8b4f55b'} />
+            <PDFPopup />
 
             {/* Back to Home button */}
             <NavButton navigate_to="/" label="Back to Home" />
