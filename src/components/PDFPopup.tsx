@@ -22,13 +22,13 @@ const PDFPopup: React.FC<PDFPopupProps> = ({ pdfUrl }) => {
             fullWidth
             maxWidth="md" // Medium width for the PDF
         >
-          <DialogContent sx={{ height: '800px', overflow: 'hidden' }}>
+          <DialogContent sx={{ height: '800px', padding: 0, overflow: 'hidden' }}>
             <iframe
                 src={pdfUrl}
                 width="100%"
                 height="100%"
                 title="PDF Viewer"
-                style={{ border: 'none' }}
+                style={{ border: 'none', overflow: 'scroll', WebkitOverflowScrolling: 'touch' }}
             />
           </DialogContent>
         </Dialog>
