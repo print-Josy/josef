@@ -195,5 +195,6 @@ export const lectureNames = [
 'Visual Analytics',
 'Visualization',
 'Wearable Computing',
-'Web Technology'
+'Web Technology',
+'Cryptography on Software Platforms'
 ];
