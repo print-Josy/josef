@@ -55,7 +55,7 @@ function Main() {
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               minHeight: '100vh',
-              width: '100%',
+              width: '100vh',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
