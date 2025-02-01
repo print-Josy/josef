@@ -107,7 +107,7 @@ function Master() {
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
             minHeight: '100vh',
-            width: '100vh',
+            width: '200vh',
             padding: '20px',
             overflow: 'auto',
           }}
