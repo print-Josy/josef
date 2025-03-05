@@ -22,7 +22,7 @@ const CourseGrid: React.FC<CourseGridProps> = ({
   return (
       <Grid container spacing={1}>
         {selectedFields.map((field, index) => (
-            <Grid item xs={12 / cols} key={index} style={{ paddingLeft: "10px" }}>
+            <Grid item xs={16 / cols} key={index} style={{ paddingLeft: "10px" }}>
               <CourseInputDropdown
                   selectedCourse={field.selectedCourse}
                   selectedEcts={field.selectedEcts}
