@@ -69,7 +69,6 @@ export const lectureNames = [
 'Game Design and Development II',
 'Generalized Linear Models',
 'Geometric 3D-Modeling in Computer Graphics',
-'Geometric 3D-Modelling in Computer Graphics',
 'Geometry for Computer Scientists',
 'GPU Programming',
 'Grundlagen der Artificial Intelligence und Logik',
@@ -197,5 +196,6 @@ export const lectureNames = [
 'Wearable Computing',
 'Web Technology',
 'Cryptography on Software Platforms',
-'PenTesting Lab'
+'PenTesting Lab',
+'Modern Key Cryptography'
 ];
