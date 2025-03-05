@@ -37,7 +37,7 @@ const CourseInputDropdown: React.FC<CourseInputDropdownProps> = ({
                                                                    inputFontSize = '14px',
                                                                  }) => {
 
-  const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 10];
+  const ectsOptions = [0, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 10];
 
   // Apply conditional styles
   const FieldStyle = {
